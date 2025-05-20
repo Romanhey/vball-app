@@ -1,0 +1,21 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/VBALL.Identity/Identity.Application/bin/Debug/net8.0
+/VBALL.Identity/Identity.Application/obj
+/VBALL.Identity/Identity.Domain/bin/Debug/net8.0
+/VBALL.Identity/Identity.Domain/obj
+/VBALL.Identity/Identity.Infrasructure/bin/Debug/net8.0
+/VBALL.Identity/Identity.Infrasructure/obj
+/VBALL.Identity/Identity.Presentation/bin/Debug/net8.0
+/VBALL.Identity/Identity.Presentation/obj
+/VBALL.Schedule/vs
+/VBALL.Identity/.vs
+/.idea 
+/VBALL.Identity/Identity.Tests/obj
+/VBALL.Notifications/.vs
+/VBALL.Notifications/Notifications.Presentation/obj
+/VBALL.Schedule/Schedule.Presentation/obj
+/VBALL.Schedule/.vs
