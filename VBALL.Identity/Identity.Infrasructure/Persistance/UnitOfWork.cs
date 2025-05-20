@@ -5,8 +5,8 @@ namespace Identity.Infastucture.Persistance
     public class UnitOfWork : IUnitOfWork
     {
         private readonly ApplicationDbContext _context;
-        
         public IUserRepository UserRepository { get; }
+
         public UnitOfWork(
             ApplicationDbContext context,
             IUserRepository userRepository)

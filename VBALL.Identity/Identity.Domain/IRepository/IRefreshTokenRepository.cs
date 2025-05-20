@@ -6,9 +6,7 @@ namespace Identity.Domain.IRepository
     {
         Task AddAsync(RefreshTokenModel model);
         Task DeleteAsync(RefreshTokenModel model);
-
         Task<RefreshTokenModel?> GetByIdAsync(int id);
-
         Task UpdateAsync(RefreshTokenModel model);
     }
 }

@@ -27,7 +27,6 @@ namespace Identity.Infastucture.Persistance.Repositories
         public async Task<List<User>> GetAllAsync(int page, int pageSize)
         {
             return await _context.Users.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
-            
         }
 
         public async Task<User?> GetByEmail(string email)
