@@ -1,0 +1,6 @@
+@Notifications.Presentation_HostAddress = http://localhost:5264
+
+GET {{Notifications.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
