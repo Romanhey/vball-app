@@ -1,4 +1,5 @@
 using Identity.Infastucture.DI;
+using Identity.Application.DI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +9,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddInfrastructureService(builder.Configuration);
-
+builder.Services.AddApplicationDependencies();
 
 var app = builder.Build();
 

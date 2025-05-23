@@ -1,5 +1,8 @@
 ﻿using Identity.Domain.IRepository;
+using Identity.Domain.IServices;
 using Identity.Infastucture.Persistance;
+using Identity.Infastucture.Persistance.Repositories;
+using Identity.Infastucture.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,8 +17,9 @@ namespace Identity.Infastucture.DI
                 op.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            //services.AddScoped<IUserRepository, UserRepository>();
-
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IJwtService, JWTService>();
+            services.AddScoped<IPasswordHasher, PasswordHasher>();
             return services;
         }
     }
