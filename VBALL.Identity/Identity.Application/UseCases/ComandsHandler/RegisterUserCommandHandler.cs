@@ -4,13 +4,16 @@ using Identity.Domain.Entities;
 using Identity.Domain.IRepository;
 using Identity.Domain.IServices;
 using MediatR;
-using System.Net.Security;
+using Microsoft.Extensions.Configuration;
 
 namespace Identity.Application.UseCases.ComandsHandler
 {
     public class RegisterUserCommandHandler(
+        IMapper mapper,
         IUnitOfWork uow,
-        IPasswordHasher pswH
+        IPasswordHasher pswH,
+        IJwtService jwtService, 
+        IConfiguration config
         ) : IRequestHandler<RegisterUserCommand>
     {
         public async Task Handle(RegisterUserCommand request, CancellationToken cancellationToken)
@@ -20,11 +23,9 @@ namespace Identity.Application.UseCases.ComandsHandler
                 throw new Exception("User already exist");
             }
 
-            User user = new User();
-            user.Email = request.DTO.Email;
-            user.Name = request.DTO.Name;
-            user.Password = pswH.HashPassword(request.DTO.Password);
-            await uow.UserRepository.AddAsync(user);
+            
+            await uow.UserRepository.AddAsync(mapper.Map<User>(request.DTO , opt => opt.Items["PasswordHasher"] = pswH));
+            await uow.CompleteAsync();
         }
     }
 }

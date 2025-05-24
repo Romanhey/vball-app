@@ -12,7 +12,8 @@ namespace Identity.Presentation.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO model, CancellationToken cancellationToken)
         {
-            return Ok(await mediator.Send(model, cancellationToken));
+            await mediator.Send(new RegisterUserCommand(model), cancellationToken);
+            return Ok();
         }
     }
 }

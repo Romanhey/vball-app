@@ -10,8 +10,8 @@ namespace Identity.Domain.IServices
 {
     public interface IJwtService
     {
-        string GetJwt(User user);
-        string GetRefreshToken(User user);
-        ClaimsPrincipal GetTokenPrincipal(string JwtToken);
+        string GenerateJwtToken(User user);
+        string ValidateToken(string token);
+        //string GenerateRefreshToken(User user);
     }
 }

@@ -6,6 +6,7 @@ using Identity.Infastucture.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Identity.Infastucture.DI
 {
@@ -20,7 +21,22 @@ namespace Identity.Infastucture.DI
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IJwtService, JWTService>();
             services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+            
             return services;
+        }
+        public static void ApplyDatabaseMigration(this IHost host)
+        {
+            using var scope = host.Services.CreateScope();
+
+            var services = scope.ServiceProvider;
+
+            var context = services.GetRequiredService<ApplicationDbContext>();
+
+            if (context.Database.GetPendingMigrations().Any())
+            {
+                context.Database.Migrate();
+            }
         }
     }
 }
