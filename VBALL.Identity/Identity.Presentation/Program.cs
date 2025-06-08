@@ -1,5 +1,6 @@
-using Identity.Infastucture.DI;
+﻿using Identity.Infastucture.DI;
 using Identity.Application.DI;
+using Presentation.DI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddInfrastructureService(builder.Configuration);
 builder.Services.AddApplicationDependencies();
+builder.Services.AddPresentationDependencies(builder.Configuration);
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
@@ -21,6 +24,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

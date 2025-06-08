@@ -1,29 +1,41 @@
 ﻿using Identity.Domain.Entities;
 using Identity.Domain.IServices;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Identity.Infastucture.Services
 {
-    public class JWTService : IJwtService
+    public class JWTService(IConfiguration config):IJwtService   
     {
         public string GetJwt(User user)
         {
-            throw new NotImplementedException();
+            var claims = new List<Claim>
+            {
+                new Claim("uid", user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim("adm", user.IsAdmin ? "1" : "0")
+            };
+            var secret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings["Secret"]!));
+            var creds = new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(double.Parse(_jwtSettings["ExpiryMinutes"]!)),
+                signingCredentials: creds);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public string GetRefreshToken(User user)
+        public string GenerateRefreshToken()
         {
-            throw new NotImplementedException();
-        }
+            var bytes = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(bytes);
 
-        public ClaimsPrincipal GetTokenPrincipal(string JwtToken)
-        {
-            throw new NotImplementedException();
+            return Convert.ToBase64String(bytes);
         }
     }
 }

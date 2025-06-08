@@ -9,7 +9,9 @@ namespace Identity.Domain.IRepository
         Task DeleteAsync(User user);
 
         Task<User?> GetByIdAsync(int id);
-        Task<User?> GetByEmail(string email);
+        Task<User?> GetByEmailAsync(string email);
         Task<List<User>> GetAllAsync(int page, int pageSize);
+
+        Task<int> GetCountAsync();
     }
 }
