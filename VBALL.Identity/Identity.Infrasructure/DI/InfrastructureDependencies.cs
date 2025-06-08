@@ -29,5 +29,18 @@ namespace Identity.Infastucture.DI
             
             return services;
         }
+        public static void ApplyDatabaseMigration(this IHost host)
+        {
+            using var scope = host.Services.CreateScope();
+
+            var services = scope.ServiceProvider;
+
+            var context = services.GetRequiredService<ApplicationDbContext>();
+
+            if (context.Database.GetPendingMigrations().Any())
+            {
+                context.Database.Migrate();
+            }
+        }
     }
 }

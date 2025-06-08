@@ -9,7 +9,7 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
     {
         var configuration = new ConfigurationBuilder()
            .SetBasePath(Directory.GetCurrentDirectory()) 
-           .AddJsonFile("appsettings.json")
+           .AddJsonFile("appsettings.json" , optional: false)
            .Build();
 
         var connectionString = configuration.GetConnectionString("DefaultConnection");
