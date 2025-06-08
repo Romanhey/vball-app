@@ -29,7 +29,7 @@ namespace Identity.Infastucture.Persistance.Repositories
             return await _context.Users.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
-        public async Task<User?> GetByEmail(string email)
+        public async Task<User?> GetByEmailAsync(string email)
         {
             return await _context.Users.FirstOrDefaultAsync(x=>x.Email == email);
         }
@@ -43,6 +43,11 @@ namespace Identity.Infastucture.Persistance.Repositories
         {
              _context.Users.Update(user);
             return Task.CompletedTask;
+        }
+
+        public Task<int> GetCountAsync()
+        {
+            return _context.Users.CountAsync();
         }
     }
 }
