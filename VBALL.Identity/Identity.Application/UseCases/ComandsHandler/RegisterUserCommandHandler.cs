@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Identity.Application.UseCases.Commands;
+using Identity.Application.UseCases.Commands.RegisterUser;
 using Identity.Domain.Entities;
 using Identity.Domain.IRepository;
 using Identity.Domain.IServices;
@@ -18,7 +19,7 @@ namespace Identity.Application.UseCases.ComandsHandler
     {
         public async Task Handle(RegisterUserCommand request, CancellationToken cancellationToken)
         {
-            if( await uow.UserRepository.GetByEmail(request.DTO.Email) is not null)
+            if( await uow.UserRepository.GetByEmailAsync(request.DTO.Email) is not null)
             {
                 throw new Exception("User already exist");
             }

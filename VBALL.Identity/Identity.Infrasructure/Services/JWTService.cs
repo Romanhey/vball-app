@@ -1,16 +1,19 @@
-﻿using Identity.Domain.Entities;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using Identity.Domain.Entities;
 using Identity.Domain.IServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
-namespace Identity.Infastucture.Services
+namespace Identity.Infrastructure.Services
 {
+    
     public class JWTService(IConfiguration config):IJwtService   
     {
-        public string GetJwt(User user)
+    private readonly IConfigurationSection _jwtSettings = config.GetSection("Jwt")!;
+        public string GenerateJwtToken(User user)
         {
             var claims = new List<Claim>
             {

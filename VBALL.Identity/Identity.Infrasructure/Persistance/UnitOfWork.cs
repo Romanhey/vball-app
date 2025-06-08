@@ -1,4 +1,5 @@
 ﻿using Identity.Domain.IRepository;
+using Identity.Infrastructure.Persistance;
 
 namespace Identity.Infastucture.Persistance
 {

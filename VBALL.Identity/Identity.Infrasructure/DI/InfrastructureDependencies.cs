@@ -3,16 +3,14 @@ using Identity.Domain.IServices;
 using Identity.Infastucture.Persistance;
 using Identity.Infastucture.Persistance.Repositories;
 using Identity.Infastucture.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Identity.Infrastructure.Persistance;
+using Identity.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
-
-namespace Identity.Infastucture.DI
+namespace Identity.Infrastructure.DI
 {
     public static class InfrastructureDependencies
     {

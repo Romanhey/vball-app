@@ -1,5 +1,5 @@
-﻿using Identity.Infastucture.DI;
-using Identity.Application.DI;
+﻿using Identity.Application.DI;
+using Identity.Infrastructure.DI;
 using Presentation.DI;
 
 var builder = WebApplication.CreateBuilder(args);
