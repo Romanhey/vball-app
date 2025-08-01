@@ -1,6 +1,8 @@
-﻿namespace Schedule.Domain.IRepositories
+﻿using Schedule.Domain.Entities;
+
+namespace Schedule.Domain.IRepositories
 {
-    public interface ITeamAssigmentRepository
+    public interface ITeamAssigmentRepository: ICrudRepository<TeamAssigment>, IGetAllRepository<TeamAssigment>
     {
     }
 }

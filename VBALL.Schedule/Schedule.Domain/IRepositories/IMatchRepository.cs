@@ -1,6 +1,8 @@
-﻿namespace Schedule.Domain.IRepositories
+﻿using Schedule.Domain.Entities;
+
+namespace Schedule.Domain.IRepositories
 {
-    public interface IMatchRepository
+    public interface IMatchRepository: ICrudRepository<Match>, IGetAllRepository<Match>, IPaginationRepository<Match>
     {
     }
 }
