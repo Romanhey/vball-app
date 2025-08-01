@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Schedule.Domain.IRepositories;
 using Schedule.Infrastructure.Persistence;
 using Schedule.Infrastructure.Persistence.Repositories;
@@ -22,7 +23,7 @@ namespace Schedule.Infrastructure.DI
 
             return services;
         }
-       /* public static void ApplyDatabaseMigration(this IHost host)
+        public static void ApplyDatabaseMigration(this IHost host)
         {
             using var scope = host.Services.CreateScope();
 
@@ -34,6 +35,6 @@ namespace Schedule.Infrastructure.DI
             {
                 context.Database.Migrate();
             }
-        }*/
+        }
     }
 }

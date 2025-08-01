@@ -1,13 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 using Schedule.Infrastructure.Persistence;
 
 public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
 {
     public ApplicationDbContext CreateDbContext(string[] args)
     {
-        var configuration = (new Microsoft.Extensions.Configuration.ConfigurationBuilder())
-            .SetBasePath(Directory.GetCurrentDirectory()) 
+        var configuration = (new ConfigurationBuilder())
+            .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json")
             .Build();
 
