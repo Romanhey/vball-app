@@ -19,3 +19,6 @@
 /VBALL.Notifications/Notifications.Presentation/obj
 /VBALL.Schedule/Schedule.Presentation/obj
 /VBALL.Schedule/.vs
+/VBALL.Schedule/Schedule.Application/obj/Debug/net8.0/Schedule.Application.AssemblyInfoInputs.cache
+/VBALL.Schedule/Schedule.Application/obj
+/VBALL.Schedule/Schedule.Domain/obj

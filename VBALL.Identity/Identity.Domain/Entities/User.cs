@@ -1,11 +1,16 @@
-﻿namespace Identity.Domain.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+
+
+namespace Identity.Domain.Entities
 {
     public class User
     {
-        public int id { get; set; }
-        public string name { get; set; }
-        public string email { get; set; }
-        public string password { get; set; }
-
+        [Key]
+        public required int Id { get; set; }
+        public required string Email { get; set; }
+        public required string Name { get; set; }
+        public required string Password { get; set; }
+        public required bool IsAdmin { get; set; }
     }
 }
