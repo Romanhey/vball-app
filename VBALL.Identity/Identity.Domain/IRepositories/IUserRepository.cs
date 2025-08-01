@@ -8,8 +8,10 @@ namespace Identity.Domain.IRepository
         Task UpdateAsync(User user);
         Task DeleteAsync(User user);
 
-        Task<User> GetByIdAsync(int id);
-        Task<User> GetByEmail(string email);
-        Task<List<User>> GetAllAsync();
+        Task<User?> GetByIdAsync(int id);
+        Task<User?> GetByEmailAsync(string email);
+        Task<List<User>> GetAllAsync(int page, int pageSize);
+
+        Task<int> GetCountAsync();
     }
 }

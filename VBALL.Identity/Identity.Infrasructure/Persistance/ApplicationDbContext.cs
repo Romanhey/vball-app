@@ -1,7 +1,7 @@
 ﻿using Identity.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Identity.Infastucture.Persistance
+namespace Identity.Infrastructure.Persistance
 {
     public class ApplicationDbContext : DbContext
     {
