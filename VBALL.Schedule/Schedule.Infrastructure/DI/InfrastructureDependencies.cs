@@ -18,7 +18,7 @@ namespace Schedule.Infrastructure.DI
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IMatchRepository, MatchRepository>();
             services.AddScoped<IParticipationRepository, ParticipationRepository>();
-            services.AddScoped<ITeamAssigmentRepository, TeamAssigmentRepository>();
+            services.AddScoped<ITeamAssignmentRepository, TeamAssignmentRepository>();
             services.AddScoped<ITeamRepository, TeamRepository>();
 
             return services;

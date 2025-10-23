@@ -9,6 +9,6 @@ namespace Schedule.Infrastructure.Persistence
         public DbSet<Match> Matches { get; init; }
         public DbSet<Team> Teams { get; init; }
         public DbSet<Participation> Participations { get; init; }
-        public DbSet<TeamAssigment> TeamAssigments { get; init; }
+        public DbSet<TeamAssignment> TeamAssignments { get; init; }
     }
 }

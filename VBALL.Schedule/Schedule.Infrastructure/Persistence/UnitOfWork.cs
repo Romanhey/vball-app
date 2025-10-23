@@ -5,7 +5,7 @@ namespace Schedule.Infrastructure.Persistence
     public class UnitOfWork(
         ApplicationDbContext context,
         ITeamRepository teamRepository,
-        ITeamAssigmentRepository teamAssigmentRepository,
+        ITeamAssignmentRepository teamAssigmentRepository,
         IParticipationRepository participationRepository,
         IMatchRepository matchRepository) : IUnitOfWork
     {
@@ -13,7 +13,7 @@ namespace Schedule.Infrastructure.Persistence
 
         public IParticipationRepository ParticipationRepository => participationRepository;
 
-        public ITeamAssigmentRepository TamAssigmentRepository => teamAssigmentRepository;
+        public ITeamAssignmentRepository TamAssigmentRepository => teamAssigmentRepository;
 
         public ITeamRepository TamRepository => teamRepository;
 

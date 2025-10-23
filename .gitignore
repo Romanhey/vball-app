@@ -60,3 +60,6 @@
 /VBALL.Schedule/Schedule.Presentation/bin/Debug/net8.0/Schedule.Presentation.dll
 /VBALL.Schedule/Schedule.Presentation/bin/Debug/net8.0/Schedule.Presentation.exe
 /VBALL.Schedule/Schedule.Presentation/bin/Debug/net8.0/Schedule.Presentation.pdb
+/VBALL.Schedule/Schedule.Infrastructure/Migrations/20250801171239_addEntities.Designer.cs
+/VBALL.Schedule/Schedule.Infrastructure/Migrations/ApplicationDbContextModelSnapshot.cs
+/VBALL.Schedule/Schedule.Infrastructure/Migrations/20250801171239_addEntities.cs

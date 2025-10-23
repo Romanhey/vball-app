@@ -2,10 +2,10 @@
 
 namespace Schedule.Domain.Entities
 {
-    public class TeamAssigment
+    public class TeamAssignment
     {
         [Key]
-        public required int TeamAssigmentId {  get; set; }
+        public required int TeamAssignmentId {  get; set; }
         public required int ParticipationId {  get; set; }
         public required int TeamId {  get; set; }
     }
