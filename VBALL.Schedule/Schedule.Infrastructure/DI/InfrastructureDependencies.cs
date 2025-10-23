@@ -15,7 +15,7 @@ namespace Schedule.Infrastructure.DI
             services.AddDbContext<ApplicationDbContext>(op =>
                 op.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
-            //services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IMatchRepository, MatchRepository>();
             services.AddScoped<IParticipationRepository, ParticipationRepository>();
             services.AddScoped<ITeamAssigmentRepository, TeamAssigmentRepository>();

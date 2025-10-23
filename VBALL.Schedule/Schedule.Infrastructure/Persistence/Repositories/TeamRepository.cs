@@ -22,7 +22,7 @@ namespace Schedule.Infrastructure.Persistence.Repositories
             return context.Teams.AsQueryable();
         }
 
-        public async Task<List<Team>> GetAllAsync()
+        public async Task<List<Team>> GetAllAsync(CancellationToken cancellationToken)
         {
             return await context.Teams.ToListAsync();
         }
@@ -30,11 +30,6 @@ namespace Schedule.Infrastructure.Persistence.Repositories
         public async Task<Team?> GetByIdAsynd(int id, CancellationToken cancellationToken = default)
         {
             return await context.Teams.FindAsync(id, cancellationToken);
-        }
-
-        public Task<Team?> GetByIdAsynd(int id)
-        {
-            throw new NotImplementedException();
         }
 
         public Task UpdateAsync(Team entity, CancellationToken cancellationToken = default)

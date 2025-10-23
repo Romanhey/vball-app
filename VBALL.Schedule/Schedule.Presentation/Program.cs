@@ -1,3 +1,4 @@
+using Schedule.Application.DI;
 using Schedule.Infrastructure.DI;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddInfrastructureService(builder.Configuration);
+builder.Services.AddApplicationService();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

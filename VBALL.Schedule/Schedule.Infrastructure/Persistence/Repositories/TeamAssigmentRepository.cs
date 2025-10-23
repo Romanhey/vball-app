@@ -22,7 +22,7 @@ namespace Schedule.Infrastructure.Persistence.Repositories
             return context.TeamAssigments.AsQueryable();
         }
 
-        public async Task<List<TeamAssigment>> GetAllAsync()
+        public async Task<List<TeamAssigment>> GetAllAsync(CancellationToken cancellationToken)
         {
             return await context.TeamAssigments.ToListAsync();
         }

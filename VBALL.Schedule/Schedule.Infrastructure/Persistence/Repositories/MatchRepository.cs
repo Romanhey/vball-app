@@ -22,7 +22,7 @@ namespace Schedule.Infrastructure.Persistence.Repositories
             return context.Matches.AsQueryable();
         }
 
-        public async Task<List<Match>> GetAllAsync()
+        public async Task<List<Match>> GetAllAsync(CancellationToken cancellationToken)
         {
             return await context.Matches.ToListAsync();
         }
@@ -30,11 +30,6 @@ namespace Schedule.Infrastructure.Persistence.Repositories
         public async Task<Match?> GetByIdAsynd(int id, CancellationToken cancellationToken)
         {
             return await context.Matches.FindAsync(id, cancellationToken);
-        }
-
-        public Task<Match?> GetByIdAsynd(int id)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<List<Match>> GetRangeAsync(int skip, int take, CancellationToken cancellationToken)
