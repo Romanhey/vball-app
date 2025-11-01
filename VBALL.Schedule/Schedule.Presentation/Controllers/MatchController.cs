@@ -37,14 +37,14 @@ namespace Schedule.Presentation.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteMatch(int id, CancellationToken cancellationToken)
         {
-            await mediator.Send(new DeleteMatchCommand(id));
+            await mediator.Send(new DeleteMatchCommand(id), cancellationToken);
             return Ok();
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllMatches(CancellationToken cancellationToken)
         {
-            return Ok(await mediator.Send(new GetAllMatchesQuery()));
+            return Ok(await mediator.Send(new GetAllMatchesQuery(), cancellationToken));
         }
     }
 }

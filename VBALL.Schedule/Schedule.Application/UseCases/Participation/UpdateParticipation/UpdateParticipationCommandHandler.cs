@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Schedule.Application.Exeptions;
+using Schedule.Application.Exceptions;
 using Schedule.Domain.IRepositories;
 
 namespace Schedule.Application.UseCases.Participation.UpdateParticipation
@@ -10,13 +10,13 @@ namespace Schedule.Application.UseCases.Participation.UpdateParticipation
     {
         public async Task Handle(UpdateParticipationCommand request, CancellationToken cancellationToken)
         {
-            var participation = await unitOfWork.ParticipationRepository.GetByIdAsync(request.participationId, cancellationToken);
+            var participation = await unitOfWork.ParticipationRepository.GetByIdAsync(request.ParticipationId, cancellationToken);
 
             if (participation is null) throw new NotFoundException("Participation not found");
 
-            participation.Status = request.dto.Status;
+            participation.Status = request.Dto.Status;
 
-            await unitOfWork.ParticipationRepository.UpdateAsync(participation);
+            await unitOfWork.ParticipationRepository.UpdateAsync(participation, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }

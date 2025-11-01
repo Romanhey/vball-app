@@ -11,7 +11,7 @@ namespace Schedule.Application.MappingProfiles
             CreateMap<CreateTeamDTO, CreateTeamCommand>()
                 .ConstructUsing(dto => new CreateTeamCommand(dto));
             CreateMap<CreateTeamCommand, Team>()
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.dto.Name));
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Dto.Name));
         }
     }
 }

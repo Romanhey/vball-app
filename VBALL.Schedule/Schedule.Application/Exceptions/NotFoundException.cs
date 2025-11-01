@@ -1,4 +1,4 @@
-﻿namespace Schedule.Application.Exeptions
+﻿namespace Schedule.Application.Exceptions
 {
     public class NotFoundException : Exception
     {

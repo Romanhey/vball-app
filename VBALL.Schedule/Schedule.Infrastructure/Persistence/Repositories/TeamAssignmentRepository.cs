@@ -32,11 +32,6 @@ namespace Schedule.Infrastructure.Persistence.Repositories
             return await context.TeamAssignments.FindAsync(id, cancellationToken);
         }
 
-        public Task<TeamAssignment?> GetByIdAsynd(int id)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task UpdateAsync(TeamAssignment entity, CancellationToken cancellationToken = default)
         {
             context.TeamAssignments.Update(entity);

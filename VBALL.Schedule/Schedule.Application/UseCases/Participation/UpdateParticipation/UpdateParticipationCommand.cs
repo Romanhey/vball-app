@@ -3,4 +3,4 @@ using Schedule.Application.DTO.Participation;
 
 namespace Schedule.Application.UseCases.Participation.UpdateParticipation;
 
-public record UpdateParticipationCommand(int participationId, UpdateParticipationDTO dto) : IRequest;
+public record UpdateParticipationCommand(int ParticipationId, UpdateParticipationDTO Dto) : IRequest;

@@ -8,7 +8,7 @@ public static class ApplicationDependencies
 {
     public static IServiceCollection AddApplicationService(this IServiceCollection services)
     {
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateMatchComandHandler).Assembly));
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateMatchCommandHandler).Assembly));
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateParticipationCommandHandler).Assembly));
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateTeamCommandHandler).Assembly));
         services.AddAutoMapper(cfg =>
