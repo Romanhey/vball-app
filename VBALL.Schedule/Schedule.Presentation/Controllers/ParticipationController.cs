@@ -12,7 +12,7 @@ namespace Schedule.Presentation.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ParticipationsController(IMediator mediator, IMapper mapper) : ControllerBase
+    public class ParticipationController(IMediator mediator, IMapper mapper) : ControllerBase
     {
         [HttpPost]
         public async Task<IActionResult> CreateParticipation([FromBody] CreateParticipationDTO dto, CancellationToken cancellationToken)
