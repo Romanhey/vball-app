@@ -13,9 +13,9 @@ namespace Schedule.Infrastructure.Persistence
 
         public IParticipationRepository ParticipationRepository => participationRepository;
 
-        public ITeamAssignmentRepository TamAssigmentRepository => teamAssigmentRepository;
+        public ITeamAssignmentRepository TeamAssigmentRepository => teamAssigmentRepository;
 
-        public ITeamRepository TamRepository => teamRepository;
+        public ITeamRepository TeamRepository => teamRepository;
 
         public async Task SaveChangesAsync(CancellationToken cancellationToken)
         {

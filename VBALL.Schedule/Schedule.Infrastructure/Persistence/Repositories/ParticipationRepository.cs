@@ -27,14 +27,9 @@ namespace Schedule.Infrastructure.Persistence.Repositories
             return await context.Participations.ToListAsync();
         }
 
-        public async Task<Participation?> GetByIdAsynd(int id, CancellationToken cancellationToken)
+        public async Task<Participation?> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
             return await context.Participations.FindAsync(id, cancellationToken);
-        }
-
-        public Task<Participation?> GetByIdAsynd(int id)
-        {
-            throw new NotImplementedException();
         }
 
         public Task UpdateAsync(Participation entity, CancellationToken cancellationToken = default)

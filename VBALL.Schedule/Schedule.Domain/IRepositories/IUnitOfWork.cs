@@ -4,8 +4,8 @@
     {
         public IMatchRepository MatchRepository { get; }
         public IParticipationRepository ParticipationRepository { get; }
-        public ITeamAssignmentRepository TamAssigmentRepository { get; }
-        public ITeamRepository TamRepository { get; }
+        public ITeamAssignmentRepository TeamAssigmentRepository { get; }
+        public ITeamRepository TeamRepository { get; }
         Task SaveChangesAsync(CancellationToken cancellationToken);
     }
 }

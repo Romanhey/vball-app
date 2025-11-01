@@ -27,7 +27,7 @@ namespace Schedule.Infrastructure.Persistence.Repositories
             return await context.Matches.ToListAsync();
         }
 
-        public async Task<Match?> GetByIdAsynd(int id, CancellationToken cancellationToken)
+        public async Task<Match?> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
             return await context.Matches.FindAsync(id, cancellationToken);
         }

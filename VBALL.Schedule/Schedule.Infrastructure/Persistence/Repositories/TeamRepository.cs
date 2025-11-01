@@ -27,7 +27,7 @@ namespace Schedule.Infrastructure.Persistence.Repositories
             return await context.Teams.ToListAsync();
         }
 
-        public async Task<Team?> GetByIdAsynd(int id, CancellationToken cancellationToken = default)
+        public async Task<Team?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await context.Teams.FindAsync(id, cancellationToken);
         }
