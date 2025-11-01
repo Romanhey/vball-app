@@ -11,7 +11,6 @@ namespace Schedule.Application.UseCases.Match.CreateMatch
     {
         public async Task Handle(CreateMatchCommand request, CancellationToken cancellationToken)
         {
-
             await unitOfWork.MatchRepository.AddAsync(mapper.Map<Domain.Entities.Match>(request), cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }

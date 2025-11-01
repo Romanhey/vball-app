@@ -1,4 +1,4 @@
-﻿    using MediatR;
+﻿using MediatR;
 using Schedule.Application.Exeptions;
 using Schedule.Domain.IRepositories;
 

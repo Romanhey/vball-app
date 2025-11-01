@@ -23,6 +23,7 @@ namespace Schedule.Infrastructure.DI
 
             return services;
         }
+
         public static void ApplyDatabaseMigration(this IHost host)
         {
             using var scope = host.Services.CreateScope();

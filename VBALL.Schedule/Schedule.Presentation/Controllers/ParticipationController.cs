@@ -8,7 +8,7 @@ using Schedule.Application.UseCases.Participation.GetAllParticipations;
 using Schedule.Application.UseCases.Participation.GetParticipation;
 using Schedule.Application.UseCases.Participation.UpdateParticipation;
 
-namespace Schedule.Presentation.Controllers 
+namespace Schedule.Presentation.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -27,14 +27,14 @@ namespace Schedule.Presentation.Controllers
             return Ok(await mediator.Send(new GetParticipationQuery(id), cancellationToken));
         }
 
-        [HttpPut("{id}")] 
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateParticipation(int id, [FromBody] UpdateParticipationDTO dto, CancellationToken cancellationToken)
         {
             await mediator.Send(mapper.Map<UpdateParticipationCommand>((id, dto)), cancellationToken);
             return Ok();
         }
 
-        [HttpDelete("{id}")] 
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteParticipation(int id, CancellationToken cancellationToken)
         {
             await mediator.Send(new DeleteParticipationCommand(id), cancellationToken);
