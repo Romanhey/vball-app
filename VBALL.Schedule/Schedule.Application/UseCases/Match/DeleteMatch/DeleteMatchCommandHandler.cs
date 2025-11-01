@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Schedule.Application.Exeptions;
 using Schedule.Domain.IRepositories;
 
 namespace Schedule.Application.UseCases.Match.DeleteMatch
@@ -7,8 +8,8 @@ namespace Schedule.Application.UseCases.Match.DeleteMatch
     {
         public async Task Handle(DeleteMatchCommand request, CancellationToken cancellationToken)
         {
-            var match = await unitOfWork.MatchRepository.GetByIdAsynd(request.id, cancellationToken);
-            if (match is null) throw new Exception("Match now found");
+            var match = await unitOfWork.MatchRepository.GetByIdAsync(request.id, cancellationToken);
+            if (match is null) throw new NotFoundException("Match now found");
 
             await unitOfWork.MatchRepository.DeleteAsync(match);
             await unitOfWork.SaveChangesAsync(cancellationToken);

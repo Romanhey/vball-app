@@ -1,5 +1,5 @@
-﻿using AutoMapper;
-using MediatR;
+﻿    using MediatR;
+using Schedule.Application.Exeptions;
 using Schedule.Domain.IRepositories;
 
 namespace Schedule.Application.UseCases.Match.GetMatch
@@ -10,10 +10,10 @@ namespace Schedule.Application.UseCases.Match.GetMatch
     {
         public async Task<Domain.Entities.Match?> Handle(GetMatchQuery request, CancellationToken cancellationToken)
         {
-            var match = await unitOfWork.MatchRepository.GetByIdAsynd(request.id, cancellationToken);
+            var match = await unitOfWork.MatchRepository.GetByIdAsync(request.id, cancellationToken);
             if (match is null)
             {
-                throw new Exception("Match not found");
+                throw new NotFoundException("Match not found");
             }
 
             return match;
