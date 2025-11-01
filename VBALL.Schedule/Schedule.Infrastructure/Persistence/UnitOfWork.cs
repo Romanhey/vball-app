@@ -1,0 +1,25 @@
+﻿using Schedule.Domain.IRepositories;
+
+namespace Schedule.Infrastructure.Persistence
+{
+    public class UnitOfWork(
+        ApplicationDbContext context,
+        ITeamRepository teamRepository,
+        ITeamAssignmentRepository teamAssigmentRepository,
+        IParticipationRepository participationRepository,
+        IMatchRepository matchRepository) : IUnitOfWork
+    {
+        public IMatchRepository MatchRepository => matchRepository;
+
+        public IParticipationRepository ParticipationRepository => participationRepository;
+
+        public ITeamAssignmentRepository TeamAssigmentRepository => teamAssigmentRepository;
+
+        public ITeamRepository TeamRepository => teamRepository;
+
+        public async Task SaveChangesAsync(CancellationToken cancellationToken)
+        {
+            await context.SaveChangesAsync(cancellationToken);
+        }
+    }
+}
