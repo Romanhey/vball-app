@@ -20,3 +20,11 @@
 /VBALL.Schedule/Schedule.Presentation/obj
 /VBALL.Schedule/.vs
 /Identity.Infrasructure/obj
+
+# Generic ignores for build artifacts
+# ignore all bin and obj directories anywhere in the repository
+**/bin/
+**/obj/
+
+# Rider/IDE files
+/.idea
