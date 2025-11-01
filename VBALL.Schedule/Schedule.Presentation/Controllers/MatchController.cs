@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Schedule.Application.DTO.Match;
 using Schedule.Application.UseCases.Match;
@@ -35,6 +36,7 @@ namespace Schedule.Presentation.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteMatch(int id, CancellationToken cancellationToken)
         {
             await mediator.Send(new DeleteMatchCommand(id), cancellationToken);
