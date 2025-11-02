@@ -4,6 +4,7 @@ using Schedule.Application.UseCases.Match.CreateMatch;
 using Schedule.Application.UseCases.Participation.CreateParticipation;
 using Schedule.Application.UseCases.Team.CreateTeam;
 namespace Schedule.Application.DI;
+
 public static class ApplicationDependencies
 {
     public static IServiceCollection AddApplicationService(this IServiceCollection services)
@@ -15,6 +16,7 @@ public static class ApplicationDependencies
         {
             cfg.AddProfile<MatchProfile>();
             cfg.AddProfile<ParticipationProfile>();
+            cfg.AddProfile<TeamProfile>();
         });
 
         return services;

@@ -16,6 +16,7 @@ namespace Schedule.Application.UseCases.Team.UpdateTeam
             if (team is null) throw new NotFoundException("Team not found");
 
             team.Name = request.Dto.Name;
+            team.Rating = request.Dto.Raging;
 
             await unitOfWork.TeamRepository.UpdateAsync(team, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
