@@ -2,5 +2,5 @@
 
 namespace Schedule.Application.UseCases.Match.DeleteMatch
 {
-    public record DeleteMatchCommand(int id):IRequest;
+    public record DeleteMatchCommand(int Id):IRequest;
 }

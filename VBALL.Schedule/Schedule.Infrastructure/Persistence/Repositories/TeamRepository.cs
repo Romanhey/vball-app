@@ -24,7 +24,7 @@ namespace Schedule.Infrastructure.Persistence.Repositories
 
         public async Task<List<Team>> GetAllAsync(CancellationToken cancellationToken)
         {
-            return await context.Teams.ToListAsync();
+            return await context.Teams.ToListAsync(cancellationToken);
         }
 
         public async Task<Team?> GetByIdAsync(int id, CancellationToken cancellationToken = default)

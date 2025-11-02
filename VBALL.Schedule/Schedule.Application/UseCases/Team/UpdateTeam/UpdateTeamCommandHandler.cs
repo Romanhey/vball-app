@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
-using Schedule.Application.Exeptions;
+using Schedule.Application.Exceptions;
 using Schedule.Domain.IRepositories;
 
 namespace Schedule.Application.UseCases.Team.UpdateTeam
@@ -11,13 +11,13 @@ namespace Schedule.Application.UseCases.Team.UpdateTeam
     {
         public async Task Handle(UpdateTeamCommand request, CancellationToken cancellationToken)
         {
-            var team = await unitOfWork.TeamRepository.GetByIdAsync(request.teamId, cancellationToken);
+            var team = await unitOfWork.TeamRepository.GetByIdAsync(request.TeamId, cancellationToken);
 
             if (team is null) throw new NotFoundException("Team not found");
 
-            team.Name = request.dto.Name;
+            team.Name = request.Dto.Name;
 
-            await unitOfWork.TeamRepository.UpdateAsync(team);
+            await unitOfWork.TeamRepository.UpdateAsync(team, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }

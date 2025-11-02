@@ -24,7 +24,7 @@ namespace Schedule.Infrastructure.Persistence.Repositories
 
         public async Task<List<Match>> GetAllAsync(CancellationToken cancellationToken)
         {
-            return await context.Matches.ToListAsync();
+            return await context.Matches.ToListAsync(cancellationToken);
         }
 
         public async Task<Match?> GetByIdAsync(int id, CancellationToken cancellationToken)
@@ -37,7 +37,7 @@ namespace Schedule.Infrastructure.Persistence.Repositories
             return await context.Matches
                 .Skip((skip - 1) * take)
                 .Take(take)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
 
         public Task UpdateAsync(Match entity, CancellationToken cancellationToken = default)

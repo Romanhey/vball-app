@@ -4,7 +4,7 @@ using Schedule.Domain.IRepositories;
 
 namespace Schedule.Application.UseCases.Match.CreateMatch
 {
-    public class CreateMatchComandHandler(
+    public class CreateMatchCommandHandler(
         IMapper mapper,
         IUnitOfWork unitOfWork
         ) : IRequestHandler<CreateMatchCommand>

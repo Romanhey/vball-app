@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
 using Schedule.Application.DTO.Participation;
-using Schedule.Application.Exeptions;
+using Schedule.Application.Exceptions;
 using Schedule.Domain.IRepositories;
 
 namespace Schedule.Application.UseCases.Participation.GetParticipation
@@ -13,7 +13,7 @@ namespace Schedule.Application.UseCases.Participation.GetParticipation
     {
         public async Task<ParticipationResponseDTO> Handle(GetParticipationQuery request, CancellationToken cancellationToken)
         {
-            var participation = await unitOfWork.ParticipationRepository.GetByIdAsync(request.participationId, cancellationToken);
+            var participation = await unitOfWork.ParticipationRepository.GetByIdAsync(request.ParticipationId, cancellationToken);
 
             if (participation is null) throw new NotFoundException("Participation not found");
 

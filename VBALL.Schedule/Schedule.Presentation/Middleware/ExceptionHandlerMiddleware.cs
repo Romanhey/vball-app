@@ -1,4 +1,4 @@
-using Schedule.Application.Exeptions;
+using Schedule.Application.Exceptions;
 using System.Net;
 using System.Text.Json;
 

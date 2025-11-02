@@ -13,11 +13,11 @@ namespace Schedule.Application.MappingProfiles
             CreateMap<CreateMatchDTO, CreateMatchCommand>()
                 .ConstructUsing(x=>new CreateMatchCommand(x));
             CreateMap<CreateMatchCommand, Match>()
-                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(x => x.matchDTO.StartTime))
-                .ForMember(dest => dest.TeamAId, opt => opt.MapFrom(x => x.matchDTO.TeamAId))
-                .ForMember(dest => dest.TeamBId, opt => opt.MapFrom(x => x.matchDTO.TeamBId));
+                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(x => x.MatchDTO.StartTime))
+                .ForMember(dest => dest.TeamAId, opt => opt.MapFrom(x => x.MatchDTO.TeamAId))
+                .ForMember(dest => dest.TeamBId, opt => opt.MapFrom(x => x.MatchDTO.TeamBId));
             CreateMap<(int id, UpdateMatchDTO), UpdateMatchCommand>()
-                 .ConstructUsing(src => new UpdateMatchCommand(src.Item1, src.Item2));
+                 .ConstructUsing(src => new UpdateMatchCommand(src.id, src.Item2));
         }
     }
 }
