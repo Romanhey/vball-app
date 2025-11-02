@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Schedule.Application.DTO.Participation;
 using Schedule.Application.UseCases.Participation.CreateParticipation;
 using Schedule.Application.UseCases.Participation.DeleteParticipation;
-using Schedule.Application.UseCases.Participation.GetAllParticipations;
+using Schedule.Application.UseCases.Participation.GetAllParticipation;
 using Schedule.Application.UseCases.Participation.GetParticipation;
 using Schedule.Application.UseCases.Participation.UpdateParticipation;
 
@@ -42,9 +42,9 @@ namespace Schedule.Presentation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllParticipations(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllParticipation(CancellationToken cancellationToken)
         {
-            return Ok(await mediator.Send(new GetAllParticipationsQuery(), cancellationToken));
+            return Ok(await mediator.Send(new GetAllParticipationQuery(), cancellationToken));
         }
     }
 }
