@@ -22,4 +22,8 @@
     <ProjectReference Include="..\Schedule.Domain\Schedule.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="RpcServices\" />
+  </ItemGroup>
+
 </Project>
