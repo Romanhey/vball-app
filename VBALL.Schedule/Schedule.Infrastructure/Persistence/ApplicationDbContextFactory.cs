@@ -10,8 +10,9 @@ namespace Schedule.Infrastructure.Persistence
         public ApplicationDbContext CreateDbContext(string[] args)
         {
             var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.Development.json")
+                .SetBasePath(Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "../Schedule.Presentation")))
+                .AddJsonFile("appsettings.json", optional: false)
+                .AddJsonFile("appsettings.Development.json", optional: false)
                 .Build();
 
             var connectionString = configuration.GetConnectionString("DefaultConnection");
