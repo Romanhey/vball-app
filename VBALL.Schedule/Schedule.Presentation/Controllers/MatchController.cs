@@ -28,14 +28,28 @@ namespace Schedule.Presentation.Controllers
             return Ok(await mediator.Send(new GetMatchQuery(id), cancellationToken));
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateMatch(int id, [FromBody] UpdateMatchDTO dto, CancellationToken cancellationToken)
+        [HttpPut("{id}/reschedule")]
+        public async Task<IActionResult> RescheduleMatch(int id, [FromBody] DateTime newStartTime, CancellationToken cancellationToken)
         {
-            await mediator.Send(mapper.Map<UpdateMatchCommand>((id, dto)), cancellationToken);
+            await mediator.Send(new RescheduleMatchCommand(id, newStartTime), cancellationToken);
             return Ok();
         }
 
-        [HttpDelete]
+        [HttpPut("{id}/start")]
+        public async Task<IActionResult> StartMatch(int id, CancellationToken cancellationToken)
+        {
+            await mediator.Send(new StartMatchCommand(id), cancellationToken);
+            return Ok();
+        }
+
+        [HttpPut("{id}/finish")]
+        public async Task<IActionResult> FinishMatch(int id, [FromBody] string finalScore, CancellationToken cancellationToken)
+        {
+            await mediator.Send(new FinishMatchCommand(id, finalScore), cancellationToken);
+            return Ok();
+        }
+
+        [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteMatch(int id, CancellationToken cancellationToken)
         {
