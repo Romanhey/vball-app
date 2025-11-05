@@ -7,6 +7,8 @@ using Schedule.Application.UseCases.Team.DeleteTeam;
 using Schedule.Application.UseCases.Team.GetAllTeams;
 using Schedule.Application.UseCases.Team.GetTeam;
 using Schedule.Application.UseCases.Team.UpdateTeam;
+using Schedule.Application.UseCases.Team.GetTeamPlayers;
+using Schedule.Application.UseCases.Team.GetTeamMatches;
 
 namespace Schedule.Presentation.Controllers
 {
@@ -45,6 +47,18 @@ namespace Schedule.Presentation.Controllers
         public async Task<IActionResult> GetAllTeams(CancellationToken cancellationToken)
         {
             return Ok(await mediator.Send(new GetAllTeamsQuery(), cancellationToken));
+        }
+
+        [HttpGet("{id}/players")]
+        public async Task<IActionResult> GetTeamPlayers(int id, CancellationToken cancellationToken)
+        {
+            return Ok(await mediator.Send(new GetTeamPlayersQuery(id), cancellationToken));
+        }
+
+        [HttpGet("{id}/matches")]
+        public async Task<IActionResult> GetTeamMatches(int id, CancellationToken cancellationToken)
+        {
+            return Ok(await mediator.Send(new GetTeamMatchesQuery(id), cancellationToken));
         }
     }
 }
