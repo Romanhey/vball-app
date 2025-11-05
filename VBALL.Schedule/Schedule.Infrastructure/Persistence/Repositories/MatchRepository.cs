@@ -45,5 +45,20 @@ namespace Schedule.Infrastructure.Persistence.Repositories
             context.Matches.Update(entity);
             return Task.CompletedTask;
         }
+
+        public async Task<bool> HasActiveMatchesForTeamAsync(int teamId, CancellationToken cancellationToken = default)
+        {
+            return await context.Matches
+                .AnyAsync(m => (m.TeamAId == teamId || m.TeamBId == teamId)
+                    && (m.Status == MatchStatus.Scheduled || m.Status == MatchStatus.InProgress),
+                    cancellationToken);
+        }
+
+        public async Task<List<Match>> GetMatchesByTeamIdAsync(int teamId, CancellationToken cancellationToken = default)
+        {
+            return await context.Matches
+                .Where(m => m.TeamAId == teamId || m.TeamBId == teamId)
+                .ToListAsync(cancellationToken);
+        }
     }
 }
