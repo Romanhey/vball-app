@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Schedule.Application.Exceptions;
 using Schedule.Domain.IRepositories;
 
 namespace Schedule.Application.UseCases.Participation.DeleteParticipation
@@ -12,7 +11,7 @@ namespace Schedule.Application.UseCases.Participation.DeleteParticipation
         {
             var participation = await unitOfWork.ParticipationRepository.GetByIdAsync(request.ParticipationId, cancellationToken);
 
-            if (participation is null) throw new NotFoundException("Participation not found");
+            if (participation is null) return;
 
             await unitOfWork.ParticipationRepository.DeleteAsync(participation, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);

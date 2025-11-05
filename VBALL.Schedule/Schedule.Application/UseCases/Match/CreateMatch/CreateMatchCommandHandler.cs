@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using MediatR;
-using Schedule.Application.Exceptions;
 using Schedule.Domain.Entities;
 using Schedule.Domain.IRepositories;
 
@@ -13,24 +12,6 @@ namespace Schedule.Application.UseCases.Match.CreateMatch
     {
         public async Task Handle(CreateMatchCommand request, CancellationToken cancellationToken)
         {
-            if (request.MatchDTO.TeamAId == request.MatchDTO.TeamBId)
-            {
-                throw new BadRequestException("A team cannot play against itself.");
-            }
-
-            if (request.MatchDTO.StartTime <= DateTime.UtcNow)
-            {
-                throw new BadRequestException("A match cannot be scheduled in the past.");
-            }
-
-            var teamA = await unitOfWork.TeamRepository.GetByIdAsync(request.MatchDTO.TeamAId, cancellationToken);
-            var teamB = await unitOfWork.TeamRepository.GetByIdAsync(request.MatchDTO.TeamBId, cancellationToken);
-
-            if (teamA is null || teamB is null)
-            {
-                throw new NotFoundException("One or both teams were not found.");
-            }
-
             var newMatch = mapper.Map<Domain.Entities.Match>(request.MatchDTO);
             newMatch.Status = MatchStatus.Scheduled;
             newMatch.FinalScore = string.Empty;

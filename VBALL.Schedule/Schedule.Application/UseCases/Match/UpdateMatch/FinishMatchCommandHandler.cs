@@ -10,19 +10,14 @@ namespace Schedule.Application.UseCases.Match.UpdateMatch
         public async Task Handle(FinishMatchCommand request, CancellationToken cancellationToken)
         {
             var match = await unitOfWork.MatchRepository.GetByIdAsync(request.MatchId, cancellationToken);
-            if (match is null)
-            {
-                throw new NotFoundException("Match not found.");
-            }
 
+            // Validation ensures match exists, but keep null check for safety
+            if (match is null) return;
+
+            // Business rule: only matches in progress can be finished
             if (match.Status != MatchStatus.InProgress)
             {
-                throw new BadRequestException("Only a match in progress can be finished.");
-            }
-
-            if (string.IsNullOrWhiteSpace(request.FinalScore))
-            {
-                throw new BadRequestException("Final score cannot be empty.");
+                throw new BadRequestException("Only a match in progress can be finished");
             }
 
             match.Status = MatchStatus.Finished;

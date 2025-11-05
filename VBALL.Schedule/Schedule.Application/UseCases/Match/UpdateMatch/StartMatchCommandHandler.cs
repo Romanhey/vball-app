@@ -10,14 +10,14 @@ namespace Schedule.Application.UseCases.Match.UpdateMatch
         public async Task Handle(StartMatchCommand request, CancellationToken cancellationToken)
         {
             var match = await unitOfWork.MatchRepository.GetByIdAsync(request.MatchId, cancellationToken);
-            if (match is null)
-            {
-                throw new NotFoundException("Match not found.");
-            }
 
+            // Validation ensures match exists, but keep null check for safety
+            if (match is null) return;
+
+            // Business rule: only scheduled matches can be started
             if (match.Status != MatchStatus.Scheduled)
             {
-                throw new BadRequestException("Only a scheduled match can be started.");
+                throw new BadRequestException("Only a scheduled match can be started");
             }
 
             match.Status = MatchStatus.InProgress;
