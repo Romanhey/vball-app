@@ -7,6 +7,7 @@
         Registered,
         Confirmed,
         Waitlisted,
+        PendingCancellation,
         Cancelled
     }
 }
