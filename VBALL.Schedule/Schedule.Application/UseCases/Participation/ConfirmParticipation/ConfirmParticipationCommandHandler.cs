@@ -1,0 +1,31 @@
+using MediatR;
+using Schedule.Application.Exceptions;
+using Schedule.Domain.Entities;
+using Schedule.Domain.IRepositories;
+
+namespace Schedule.Application.UseCases.Participation.ConfirmParticipation;
+
+public class ConfirmParticipationCommandHandler(
+    IUnitOfWork unitOfWork
+    ) : IRequestHandler<ConfirmParticipationCommand>
+{
+    public async Task Handle(ConfirmParticipationCommand request, CancellationToken cancellationToken)
+    {
+        var participation = await unitOfWork.ParticipationRepository.GetByIdAsync(request.ParticipationId, cancellationToken);
+
+        // Validation ensures participation exists, but keep null check for safety
+        if (participation is null) return;
+
+        // Business rule: can only confirm participation with Registered status
+        if (participation.Status != ParticipationStatus.Registered)
+        {
+            throw new BadRequestException("Only participation with Registered status can be confirmed");
+        }
+
+        participation.Status = ParticipationStatus.Confirmed;
+        participation.UpdatedAt = DateTime.UtcNow;
+
+        await unitOfWork.ParticipationRepository.UpdateAsync(participation, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+}
