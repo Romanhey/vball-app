@@ -37,5 +37,17 @@ namespace Schedule.Infrastructure.Persistence.Repositories
             context.TeamAssignments.Update(entity);
             return Task.CompletedTask;
         }
+
+        public async Task<List<int>> GetPlayerIdsByTeamIdAsync(int teamId, CancellationToken cancellationToken = default)
+        {
+            return await context.TeamAssignments
+                .Where(ta => ta.TeamId == teamId)
+                .Join(context.Participation,
+                    ta => ta.ParticipationId,
+                    p => p.ParticipationId,
+                    (ta, p) => p.PlayerId)
+                .Distinct()
+                .ToListAsync(cancellationToken);
+        }
     }
 }
