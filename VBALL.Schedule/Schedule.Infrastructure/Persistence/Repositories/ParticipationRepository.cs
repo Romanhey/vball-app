@@ -46,6 +46,14 @@ namespace Schedule.Infrastructure.Persistence.Repositories
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<List<Participation>> GetByPlayerAsync(int playerId, CancellationToken cancellationToken)
+        {
+            return await context.Participation
+                .Where(p => p.PlayerId == playerId)
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task<List<Participation>> GetByStatusAsync(ParticipationStatus status, CancellationToken cancellationToken)
         {
             return await context.Participation
