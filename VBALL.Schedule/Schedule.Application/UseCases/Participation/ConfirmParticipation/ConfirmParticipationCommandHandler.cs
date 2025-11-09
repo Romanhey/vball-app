@@ -13,10 +13,8 @@ public class ConfirmParticipationCommandHandler(
     {
         var participation = await unitOfWork.ParticipationRepository.GetByIdAsync(request.ParticipationId, cancellationToken);
 
-        // Validation ensures participation exists, but keep null check for safety
         if (participation is null) return;
 
-        // Business rule: can only confirm participation with Registered status
         if (participation.Status != ParticipationStatus.Registered)
         {
             throw new BadRequestException("Only participation with Registered status can be confirmed");

@@ -12,9 +12,10 @@ namespace Schedule.Application.UseCases.Participation.ApproveCancellation
             var participation = await unitOfWork.ParticipationRepository.GetByIdAsync(request.ParticipationId, cancellationToken);
 
             if (participation is null)
+            {
                 throw new NotFoundException("Participation not found");
+            }
 
-            // Бизнес-правило: можно подтвердить только если есть запрос на отмену
             if (participation.Status != ParticipationStatus.PendingCancellation)
             {
                 throw new BadRequestException("No pending cancellation request to approve");

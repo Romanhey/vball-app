@@ -21,16 +21,6 @@ namespace Schedule.Application.Validators.Participation
                 .WithMessage("Cancellation reason is required")
                 .MaximumLength(500)
                 .WithMessage("Cancellation reason must not exceed 500 characters");
-
-            RuleFor(x => x.ParticipationId)
-                .MustAsync(ParticipationExists)
-                .WithMessage("Participation does not exist");
-        }
-
-        private async Task<bool> ParticipationExists(int participationId, CancellationToken cancellationToken)
-        {
-            var participation = await _unitOfWork.ParticipationRepository.GetByIdAsync(participationId, cancellationToken);
-            return participation is not null;
         }
     }
 }

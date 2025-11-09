@@ -14,7 +14,6 @@ namespace Schedule.Application.UseCases.Match.CreateMatch
         {
             var newMatch = mapper.Map<Domain.Entities.Match>(request.MatchDTO);
             newMatch.Status = MatchStatus.Scheduled;
-            newMatch.FinalScore = string.Empty;
 
             await unitOfWork.MatchRepository.AddAsync(newMatch, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
