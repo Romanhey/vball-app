@@ -14,7 +14,6 @@ namespace Schedule.Application.UseCases.Team.DeleteTeam
 
             if (team is null) throw new NotFoundException("Team not found");
 
-            // Бизнес-правило: нельзя удалить команду с активными матчами
             var hasActiveMatches = await unitOfWork.MatchRepository.HasActiveMatchesForTeamAsync(request.TeamId, cancellationToken);
             if (hasActiveMatches)
             {
