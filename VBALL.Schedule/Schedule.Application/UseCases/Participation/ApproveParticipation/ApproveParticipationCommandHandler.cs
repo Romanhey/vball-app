@@ -1,5 +1,6 @@
 using MediatR;
 using Schedule.Application.Exceptions;
+using Schedule.Domain.Constants;
 using Schedule.Domain.Entities;
 using Schedule.Domain.IRepositories;
 
@@ -11,13 +12,22 @@ public class ApproveParticipationCommandHandler(
 {
     public async Task Handle(ApproveParticipationCommand request, CancellationToken cancellationToken)
     {
-        var participation = await unitOfWork.ParticipationRepository.GetByIdAsync(request.ParticipationId, cancellationToken);
+        // Note: Participation existence and match finished validation is handled by FinishedMatchValidationBehavior
+        var participation = (await unitOfWork.ParticipationRepository.GetByIdAsync(request.ParticipationId, cancellationToken))!;
 
-        if (participation is null) return;
-
+        // Business rule: can only approve from Reviewed status
         if (participation.Status != ParticipationStatus.Reviewed)
         {
             throw new BadRequestException("Only participation with Reviewed status can be approved");
+        }
+
+        // Business rule: check that match doesn't exceed 14 players limit
+        var registeredCount = await unitOfWork.ParticipationRepository
+            .GetActiveParticipationCountForMatchAsync(participation.MatchId, cancellationToken);
+
+        if (registeredCount >= ScheduleConstants.MaxPlayersPerMatch)
+        {
+            throw new BadRequestException($"Cannot register: match already has {ScheduleConstants.MaxPlayersPerMatch} registered players");
         }
 
         participation.Status = ParticipationStatus.Registered;

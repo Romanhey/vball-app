@@ -1,4 +1,3 @@
-using FluentValidation;
 using MediatR;
 using Schedule.Application.Exceptions;
 using Schedule.Domain.Entities;
@@ -7,33 +6,28 @@ using Schedule.Domain.IRepositories;
 namespace Schedule.Application.UseCases.Participation.RequestCancellation
 {
     public class RequestCancellationCommandHandler(
-        IUnitOfWork unitOfWork,
-        IValidator<RequestCancellationCommand> validator
+        IUnitOfWork unitOfWork
         ) : IRequestHandler<RequestCancellationCommand>
     {
         public async Task Handle(RequestCancellationCommand request, CancellationToken cancellationToken)
         {
-            var res = await validator.ValidateAsync(request, cancellationToken);
+            // Validation handled by FluentValidation AutoValidation
+            // Note: Participation existence and match finished validation is handled by FinishedMatchValidationBehavior
+            var participation = (await unitOfWork.ParticipationRepository.GetByIdAsync(request.ParticipationId, cancellationToken))!;
 
-            if (!res.IsValid)
+            // Business rule: player can request cancellation from Applied, Reviewed, Waitlisted, Registered statuses
+            // Confirmed participation can only be cancelled by admin
+            var allowedStatuses = new[] {
+                ParticipationStatus.Applied,
+                ParticipationStatus.Reviewed,
+                ParticipationStatus.Waitlisted,
+                ParticipationStatus.Registered
+            };
+
+            if (!allowedStatuses.Contains(participation.Status))
             {
-                throw new BadRequestException(string.Join(',', res.Errors));
+                throw new BadRequestException("Can only request cancellation for Applied, Reviewed, Waitlisted or Registered participation. Confirmed participation can only be cancelled by admin.");
             }
-
-            var participation = await unitOfWork.ParticipationRepository.GetByIdAsync(request.ParticipationId, cancellationToken);
-
-            if (participation is null)
-            {
-                throw new NotFoundException("Participation not found");
-            }
-
-            if (participation.Status != ParticipationStatus.Confirmed &&
-                participation.Status != ParticipationStatus.Registered)
-            {
-                throw new BadRequestException("Can only request cancellation for confirmed or registered participation");
-            }
-
-    
 
             if (participation.Status == ParticipationStatus.PendingCancellation)
             {

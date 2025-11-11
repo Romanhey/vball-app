@@ -75,5 +75,14 @@ namespace Schedule.Infrastructure.Persistence.Repositories
                 .OrderBy(p => p.CreatedAt)
                 .ToListAsync(cancellationToken);
         }
+
+        public async Task<int> GetActiveParticipationCountForMatchAsync(int matchId, CancellationToken cancellationToken)
+        {
+            return await context.Participation
+                .CountAsync(p => p.MatchId == matchId
+                    && p.Status != ParticipationStatus.Cancelled
+                    && p.Status != ParticipationStatus.Waitlisted,
+                    cancellationToken);
+        }
     }
 }

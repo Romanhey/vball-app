@@ -28,13 +28,6 @@ namespace Schedule.Presentation.Controllers
             return Ok(await mediator.Send(new GetMatchQuery(id), cancellationToken));
         }
 
-        [HttpPut("{id}/reschedule")]
-        public async Task<IActionResult> RescheduleMatch(int id, [FromBody] DateTime newStartTime, CancellationToken cancellationToken)
-        {
-            await mediator.Send(new RescheduleMatchCommand(id, newStartTime), cancellationToken);
-            return Ok();
-        }
-
         [HttpPut("{id}/start")]
         public async Task<IActionResult> StartMatch(int id, CancellationToken cancellationToken)
         {

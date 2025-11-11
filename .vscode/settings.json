@@ -1,4 +1,5 @@
 {
   "cSpell.words": ["Mediat", "Npgsql", "Protos"],
-  "CodeGPT.apiKey": "Google AI Studio"
+  "CodeGPT.apiKey": "Google AI Studio",
+  "cSpell.language": "en,ru"
 }

@@ -14,6 +14,9 @@ using Schedule.Application.UseCases.Participation.UpdateParticipation;
 using Schedule.Application.UseCases.Participation.RequestCancellation;
 using Schedule.Application.UseCases.Participation.ApproveCancellation;
 using Schedule.Application.UseCases.Participation.RejectCancellation;
+using Schedule.Application.UseCases.Participation.AdminCancelParticipation;
+using Schedule.Application.UseCases.Participation.ReviewParticipation;
+using Schedule.Application.UseCases.Participation.ReviewWaitlistedParticipation;
 using Schedule.Domain.Entities;
 
 namespace Schedule.Presentation.Controllers
@@ -67,6 +70,20 @@ namespace Schedule.Presentation.Controllers
             return Ok(await mediator.Send(new GetParticipationByStatusQuery(status), cancellationToken));
         }
 
+        [HttpPost("{id}/review")]
+        public async Task<IActionResult> ReviewParticipation(int id, CancellationToken cancellationToken)
+        {
+            await mediator.Send(new ReviewParticipationCommand(id), cancellationToken);
+            return Ok();
+        }
+
+        [HttpPost("{id}/review-waitlisted")]
+        public async Task<IActionResult> ReviewWaitlistedParticipation(int id, CancellationToken cancellationToken)
+        {
+            await mediator.Send(new ReviewWaitlistedParticipationCommand(id), cancellationToken);
+            return Ok();
+        }
+
         [HttpPost("{id}/approve")]
         public async Task<IActionResult> ApproveParticipation(int id, CancellationToken cancellationToken)
         {
@@ -75,9 +92,9 @@ namespace Schedule.Presentation.Controllers
         }
 
         [HttpPost("{id}/confirm")]
-        public async Task<IActionResult> ConfirmParticipation(int id, CancellationToken cancellationToken)
+        public async Task<IActionResult> ConfirmParticipation(int id, [FromBody] int teamId, CancellationToken cancellationToken)
         {
-            await mediator.Send(new ConfirmParticipationCommand(id), cancellationToken);
+            await mediator.Send(new ConfirmParticipationCommand(id, teamId), cancellationToken);
             return Ok();
         }
 
@@ -99,6 +116,13 @@ namespace Schedule.Presentation.Controllers
         public async Task<IActionResult> RejectCancellation(int id, CancellationToken cancellationToken)
         {
             await mediator.Send(new RejectCancellationCommand(id), cancellationToken);
+            return Ok();
+        }
+
+        [HttpPost("{id}/admin-cancel")]
+        public async Task<IActionResult> AdminCancelParticipation(int id, [FromBody] AdminCancelParticipationDTO dto, CancellationToken cancellationToken)
+        {
+            await mediator.Send(new AdminCancelParticipationCommand(id, dto), cancellationToken);
             return Ok();
         }
     }

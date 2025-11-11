@@ -9,20 +9,18 @@ namespace Schedule.Application.UseCases.Participation.RejectCancellation
     {
         public async Task Handle(RejectCancellationCommand request, CancellationToken cancellationToken)
         {
-            var participation = await unitOfWork.ParticipationRepository.GetByIdAsync(request.ParticipationId, cancellationToken);
-
-            if (participation is null)
-            {
-                throw new NotFoundException("Participation not found");
-            }
+            // Note: Participation existence and match finished validation is handled by FinishedMatchValidationBehavior
+            var participation = (await unitOfWork.ParticipationRepository.GetByIdAsync(request.ParticipationId, cancellationToken))!;
 
             if (participation.Status != ParticipationStatus.PendingCancellation)
             {
                 throw new BadRequestException("No pending cancellation request to reject");
             }
 
-            participation.Status = ParticipationStatus.Confirmed;
-            participation.CancellationReason = null; 
+            // Business rule: rejection returns participant to Registered status (not Confirmed)
+            // Player must go through confirmation process again
+            participation.Status = ParticipationStatus.Registered;
+            participation.CancellationReason = null;
             participation.UpdatedAt = DateTime.UtcNow;
 
             await unitOfWork.ParticipationRepository.UpdateAsync(participation, cancellationToken);
