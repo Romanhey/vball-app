@@ -9,6 +9,16 @@ namespace Schedule.Infrastructure.Persistence
         public DbSet<Match> Matches { get; init; }
         public DbSet<Team> Teams { get; init; }
         public DbSet<Participation> Participation { get; init; }
-        public DbSet<TeamAssignment> TeamAssignments { get; init; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Participation>()
+                .HasOne<Team>()
+                .WithMany()
+                .HasForeignKey(p => p.TeamId)
+                .IsRequired(false);
+        }
     }
 }

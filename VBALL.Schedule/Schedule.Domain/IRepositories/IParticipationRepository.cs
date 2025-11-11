@@ -8,5 +8,7 @@ namespace Schedule.Domain.IRepositories
         Task<List<Participation>> GetByMatchAsync(int matchId, CancellationToken cancellationToken);
         Task<List<Participation>> GetByPlayerAsync(int playerId, CancellationToken cancellationToken);
         Task<List<Participation>> GetByStatusAsync(ParticipationStatus status, CancellationToken cancellationToken);
+        Task<List<Participation>> GetByTeamIdAsync(int teamId, CancellationToken cancellationToken);
+        Task<int> GetActiveParticipationCountForMatchAsync(int matchId, CancellationToken cancellationToken);
     }
 }

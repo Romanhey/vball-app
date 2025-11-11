@@ -13,7 +13,8 @@ namespace Schedule.Application.UseCases.Team.GetTeamPlayers
             if (team is null)
                 throw new NotFoundException("Team not found");
 
-            return await unitOfWork.TeamAssignmentRepository.GetPlayerIdsByTeamIdAsync(request.TeamId, cancellationToken);
+            var participation = await unitOfWork.ParticipationRepository.GetByTeamIdAsync(request.TeamId, cancellationToken);
+            return participation.Select(p => p.PlayerId).ToList();
         }
     }
 }

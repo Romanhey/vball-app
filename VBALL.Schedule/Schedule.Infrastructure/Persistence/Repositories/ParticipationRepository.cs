@@ -67,5 +67,13 @@ namespace Schedule.Infrastructure.Persistence.Repositories
             context.Participation.Update(entity);
             return Task.CompletedTask;
         }
+
+        public async Task<List<Participation>> GetByTeamIdAsync(int teamId, CancellationToken cancellationToken)
+        {
+            return await context.Participation
+                .Where(p => p.TeamId == teamId)
+                .OrderBy(p => p.CreatedAt)
+                .ToListAsync(cancellationToken);
+        }
     }
 }
