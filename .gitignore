@@ -20,3 +20,17 @@
 /VBALL.Schedule/Schedule.Presentation/obj
 /VBALL.Schedule/.vs
 /Identity.Infrasructure/obj
+/VBALL.Client/node_modules
+**/bin
+**/obj
+VBALL.Identity/Identity.Infrastructure/Migrations/20250503210402_Initial.cs
+VBALL.Identity/Identity.Infrastructure/Migrations/20250503210402_Initial.Designer.cs
+VBALL.Identity/Identity.Infrastructure/Migrations/20250522190532_TokerModelCreate.cs
+VBALL.Identity/Identity.Infrastructure/Migrations/20250522190532_TokerModelCreate.Designer.cs
+VBALL.Identity/Identity.Infrastructure/Migrations/20250524163150_usersUpdate.cs
+VBALL.Identity/Identity.Infrastructure/Migrations/20250524163150_usersUpdate.Designer.cs
+VBALL.Identity/Identity.Infrastructure/Migrations/ApplicationDbContextModelSnapshot.cs
+**/.idea/
+**/.vscode
+**/.vs
+**/Migrations
