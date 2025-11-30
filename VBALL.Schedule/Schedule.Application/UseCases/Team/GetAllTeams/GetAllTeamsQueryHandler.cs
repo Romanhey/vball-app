@@ -9,7 +9,7 @@ namespace Schedule.Application.UseCases.Team.GetAllTeams
     {
         public async Task<List<Domain.Entities.Team>> Handle(GetAllTeamsQuery request, CancellationToken cancellationToken)
         {
-            return await unitOfWork.TeamRepository.GetAllAsync(cancellationToken);
+            return await unitOfWork.TeamRepository.GetAsync<Domain.Entities.Team>(cancellationToken: cancellationToken);
         }
     }
 }

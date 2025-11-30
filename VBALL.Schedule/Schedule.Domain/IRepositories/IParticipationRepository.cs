@@ -1,8 +1,9 @@
 ﻿using Schedule.Domain.Entities;
+using Schedule.Domain.IRepositories.BaseRepos;
 
 namespace Schedule.Domain.IRepositories
 {
-    public interface IParticipationRepository : ICrudRepository<Participation>, IGetAllRepository<Participation>
+    public interface IParticipationRepository : IBaseRepository<Participation>
     {
         Task<Participation?> GetByMatchAndPlayerAsync(int matchId, int playerId, CancellationToken cancellationToken);
         Task<List<Participation>> GetByMatchAsync(int matchId, CancellationToken cancellationToken);

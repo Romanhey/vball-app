@@ -9,7 +9,7 @@ namespace Schedule.Application.UseCases.Participation.GetAllParticipation
     {
         public async Task<List<Domain.Entities.Participation>> Handle(GetAllParticipationQuery request, CancellationToken cancellationToken)
         {
-            return await unitOfWork.ParticipationRepository.GetAllAsync(cancellationToken);
+            return await unitOfWork.ParticipationRepository.GetAsync<Domain.Entities.Participation>(cancellationToken: cancellationToken);
         }
     }
 }
