@@ -1,49 +1,57 @@
 ﻿using MediatR;
+using Schedule.Domain.Entities;
 using Schedule.Domain.IRepositories;
-using System.Linq.Expressions;
-
+using Schedule.Domain.Specification;
+using Schedule.Domain.Specification.MatchSpecifications;
 namespace Schedule.Application.UseCases.Match.GetAllMatches
 {
     public class GetAllQueryHandler(IUnitOfWork unitOfWork) : IRequestHandler<GetAllMatchesQuery, List<Domain.Entities.Match>>
     {
         public async Task<List<Domain.Entities.Match>> Handle(GetAllMatchesQuery request, CancellationToken cancellationToken)
         {
-            var filter = request.DTO;
-            Expression<Func<Domain.Entities.Match, bool>>? expr = null;
+            Specification<Domain.Entities.Match> filter = new TrueSpecification<Domain.Entities.Match>();
 
-            if (filter.FromDate.HasValue || filter.ToDate.HasValue)
+            var dto = request.DTO;
+
+            if (dto.TeamId is not null)
             {
-                var dateSpec = new DateIntervalSpecification<Domain.Entities.Match>(m => m.StartTime, filter.FromDate, filter.ToDate);
-                expr = dateSpec.ToExpression();
+                var teamAIdSpec = new ValueSpecification<Domain.Entities.Match, int>(x => x.TeamAId, [dto.TeamId.Value]);
+                var teamBIdSpec = new ValueSpecification<Domain.Entities.Match, int>(x => x.TeamBId, [dto.TeamId.Value]);
+
+                filter &= teamAIdSpec.Or(teamBIdSpec);
             }
 
-            if (filter.TeamId.HasValue)
+            if (dto.FromDate is not null && dto.ToDate is not null)
             {
-                Expression<Func<Domain.Entities.Match, bool>> teamExpr = m => m.TeamAId == filter.TeamId.Value || m.TeamBId == filter.TeamId.Value;
-                expr = expr == null ? teamExpr : Combine(expr, teamExpr);
+                var dateSpec = new DateIntervalSpecification<Domain.Entities.Match>(x => x.StartTime, dto.FromDate.Value, dto.ToDate.Value);
+
+                filter &= dateSpec;
+            }
+            else if (dto.FromDate is not null)
+            {
+                var dateSpec = new DateIntervalSpecification<Domain.Entities.Match>(x => x.StartTime, dto.FromDate.Value, null);
+
+                filter &= dateSpec;
+            }
+            else if (dto.ToDate is not null)
+            {
+                var dateSpec = new DateIntervalSpecification<Domain.Entities.Match>(x => x.StartTime, null, dto.ToDate.Value);
+
+                filter &= dateSpec;
             }
 
-            if (filter.Status.HasValue)
+            if (dto.Status is not null)
             {
-                Expression<Func<Domain.Entities.Match, bool>> statusExpr = m => m.Status == filter.Status.Value;
-                expr = expr == null ? statusExpr : Combine(expr, statusExpr);
+                var statusSpec = new ValueSpecification<Domain.Entities.Match, MatchStatus>(x => x.Status, [dto.Status.Value]);
+                filter &= statusSpec;
             }
 
-            if (expr == null)
-            {
-                return await unitOfWork.MatchRepository.GetAsync<Domain.Entities.Match>(skip: request.skip, take: request.take, cancellationToken: cancellationToken);
-            }
-            return await unitOfWork.MatchRepository.GetAsync<Domain.Entities.Match>(expr, skip: request.skip, take: request.take, cancellationToken: cancellationToken);
-        }
-
-        private static Expression<Func<Domain.Entities.Match, bool>> Combine(Expression<Func<Domain.Entities.Match, bool>> expr1, Expression<Func<Domain.Entities.Match, bool>> expr2)
-        {
-            var param = Expression.Parameter(typeof(Domain.Entities.Match));
-            var body = Expression.AndAlso(
-                Expression.Invoke(expr1, param),
-                Expression.Invoke(expr2, param)
-            );
-            return Expression.Lambda<Func<Domain.Entities.Match, bool>>(body, param);
+            return await unitOfWork.MatchRepository.GetAsync<Domain.Entities.Match>(
+                    filter: filter.ToExpression(),
+                    skip: request.skip,
+                    take: request.take,
+                    cancellationToken: cancellationToken
+                );
         }
     }
 }

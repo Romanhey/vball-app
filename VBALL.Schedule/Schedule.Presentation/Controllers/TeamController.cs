@@ -44,9 +44,9 @@ namespace Schedule.Presentation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTeams(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllTeams([FromQuery] TeamFilterDTO dto, [FromQuery] int skip, [FromQuery] int take, CancellationToken cancellationToken)
         {
-            return Ok(await mediator.Send(new GetAllTeamsQuery(), cancellationToken));
+            return Ok(await mediator.Send(new GetAllTeamsQuery(dto, skip, take), cancellationToken));
         }
 
         [HttpGet("{id}/players")]

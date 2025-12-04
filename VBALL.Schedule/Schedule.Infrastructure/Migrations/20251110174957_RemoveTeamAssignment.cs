@@ -12,7 +12,7 @@ namespace Schedule.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "TeamAssignments");
+                name: "TeamAssigments");
 
             migrationBuilder.AddColumn<string>(
                 name: "CancellationReason",
@@ -59,7 +59,7 @@ namespace Schedule.Infrastructure.Migrations
                 table: "Participation");
 
             migrationBuilder.CreateTable(
-                name: "TeamAssignments",
+                name: "TeamAssigments",
                 columns: table => new
                 {
                     TeamAssignmentId = table.Column<int>(type: "integer", nullable: false)

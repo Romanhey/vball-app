@@ -48,8 +48,8 @@ namespace Schedule.Infrastructure.Persistence.Repositories
         {
             return await Context.Participation
                 .CountAsync(p => p.MatchId == matchId
-                    && p.Status != ParticipationStatus.Cancelled
-                    && p.Status != ParticipationStatus.Waitlisted,
+                    && p.Status == ParticipationStatus.Registered 
+                    && p.Status == ParticipationStatus.Confirmed,
                     cancellationToken);
         }
 

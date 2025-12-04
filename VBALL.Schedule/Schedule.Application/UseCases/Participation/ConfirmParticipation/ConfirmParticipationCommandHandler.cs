@@ -11,10 +11,8 @@ public class ConfirmParticipationCommandHandler(
 {
     public async Task Handle(ConfirmParticipationCommand request, CancellationToken cancellationToken)
     {
-        // Note: Participation existence and match finished validation is handled by FinishedMatchValidationBehavior
         var participation = (await unitOfWork.ParticipationRepository.GetByIdAsync(request.ParticipationId, cancellationToken))!;
 
-        // Business rule: can only confirm from Registered status
         if (participation.Status != ParticipationStatus.Registered)
         {
             throw new BadRequestException("Only participation with Registered status can be confirmed");
@@ -26,14 +24,11 @@ public class ConfirmParticipationCommandHandler(
             throw new NotFoundException($"Match with ID {participation.MatchId} not found");
         }
 
-        // Note: Match finished validation is handled by FinishedMatchValidationBehavior
-
         if (match.TeamAId != request.TeamId && match.TeamBId != request.TeamId)
         {
             throw new BadRequestException("Team does not belong to this match");
         }
 
-        // Business rule: team cannot have more than 7 players
         var matchParticipation = await unitOfWork.ParticipationRepository.GetByMatchAsync(participation.MatchId, cancellationToken);
         var teamPlayersCount = matchParticipation.Count(p =>
             p.TeamId == request.TeamId &&

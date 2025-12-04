@@ -16,11 +16,11 @@ namespace Schedule.Presentation.Controllers
     public class MatchController(IMediator mediator, IMapper mapper) : ControllerBase
     {
         [HttpPost]
-        public async Task<IActionResult> CreateMatch([FromBody] CreateMatchDTO dto, CancellationToken cancellationToken)
-        {
-            await mediator.Send(mapper.Map<CreateMatchCommand>(dto), cancellationToken);
-            return Ok();
-        }
+            public async Task<IActionResult> CreateMatch([FromBody] CreateMatchDTO dto, CancellationToken cancellationToken)
+            {
+                await mediator.Send(mapper.Map<CreateMatchCommand>(dto), cancellationToken);
+                return Ok();
+            }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMatchById(int id, CancellationToken cancellationToken)
@@ -51,9 +51,9 @@ namespace Schedule.Presentation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllMatches(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllMatches([FromQuery] MatchFilterDTO dto, int skip, int take, CancellationToken cancellationToken)
         {
-            return Ok(await mediator.Send(new GetAllMatchesQuery(), cancellationToken));
+            return Ok(await mediator.Send(new GetAllMatchesQuery(dto, skip, take), cancellationToken));
         }
     }
 }

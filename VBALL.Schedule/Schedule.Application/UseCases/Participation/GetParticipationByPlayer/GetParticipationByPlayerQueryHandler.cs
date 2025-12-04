@@ -12,7 +12,6 @@ public class GetParticipationByPlayerQueryHandler(
 {
     public async Task<List<ParticipationResponseDTO>> Handle(GetParticipationByPlayerQuery request, CancellationToken cancellationToken)
     {
-        // Validation handled by FluentValidation AutoValidation
         var participation = await unitOfWork.ParticipationRepository.GetByPlayerAsync(request.PlayerId, cancellationToken);
 
         return mapper.Map<List<ParticipationResponseDTO>>(participation);

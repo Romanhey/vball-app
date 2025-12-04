@@ -4,10 +4,6 @@ using Schedule.Domain.IRepositories;
 
 namespace Schedule.Application.Behaviors
 {
-    /// <summary>
-    /// Pipeline behavior that validates match existence for commands implementing IMatchCommand.
-    /// Throws NotFoundException if match does not exist.
-    /// </summary>
     public class MatchExistenceValidationBehavior<TRequest, TResponse>(IUnitOfWork unitOfWork)
         : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>

@@ -12,16 +12,13 @@ public class ApproveParticipationCommandHandler(
 {
     public async Task Handle(ApproveParticipationCommand request, CancellationToken cancellationToken)
     {
-        // Note: Participation existence and match finished validation is handled by FinishedMatchValidationBehavior
         var participation = (await unitOfWork.ParticipationRepository.GetByIdAsync(request.ParticipationId, cancellationToken))!;
 
-        // Business rule: can only approve from Reviewed status
         if (participation.Status != ParticipationStatus.Reviewed)
         {
             throw new BadRequestException("Only participation with Reviewed status can be approved");
         }
 
-        // Business rule: check that match doesn't exceed 14 players limit
         var registeredCount = await unitOfWork.ParticipationRepository
             .GetActiveParticipationCountForMatchAsync(participation.MatchId, cancellationToken);
 

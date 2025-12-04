@@ -32,12 +32,6 @@ namespace Schedule.Presentation.Controllers
             return Ok();
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetParticipationById(int id, CancellationToken cancellationToken)
-        {
-            return Ok(await mediator.Send(new GetParticipationQuery(id), cancellationToken));
-        }
-
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateParticipation(int id, [FromBody] UpdateParticipationDTO dto, CancellationToken cancellationToken)
         {
@@ -53,22 +47,11 @@ namespace Schedule.Presentation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllParticipation(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllParticipation([FromQuery] ParticipationFilterDTO dto, int skip, int take, CancellationToken cancellationToken)
         {
-            return Ok(await mediator.Send(new GetAllParticipationQuery(), cancellationToken));
+            return Ok(await mediator.Send(new GetAllParticipationQuery(dto, skip, take), cancellationToken));
         }
 
-        [HttpGet("player/{playerId}")]
-        public async Task<IActionResult> GetParticipationByPlayer(int playerId, CancellationToken cancellationToken)
-        {
-            return Ok(await mediator.Send(new GetParticipationByPlayerQuery(playerId), cancellationToken));
-        }
-
-        [HttpGet("status/{status}")]
-        public async Task<IActionResult> GetParticipationByStatus(ParticipationStatus status, CancellationToken cancellationToken)
-        {
-            return Ok(await mediator.Send(new GetParticipationByStatusQuery(status), cancellationToken));
-        }
 
         [HttpPost("{id}/review")]
         public async Task<IActionResult> ReviewParticipation(int id, CancellationToken cancellationToken)
