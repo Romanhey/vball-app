@@ -1,0 +1,21 @@
+.wrapper {
+  display: inline-flex;
+  background: #ffffff;
+  border: 1px solid #d0d7e2;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.button {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #4b5563;
+}
+
+.buttonActive {
+  background: #111827;
+  color: #ffffff;
+}

@@ -1,0 +1,47 @@
+.shell {
+  min-height: 100vh;
+  background: #f8f8fb;
+  color: #0c0d12;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #e2e5ee;
+  background: #ffffff;
+}
+
+.logo {
+  font-size: 1.25rem;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.navLink {
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.navLinkActive {
+  border-color: #111827;
+  background: #111827;
+  color: #ffffff;
+}
+
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem 3rem;
+}
