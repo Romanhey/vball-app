@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification WebSocket Client</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .notifications {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .notification {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+            background-color: #f8f9fa;
+        }
+        .notification.INFO {
+            border-left-color: #28a745;
+        }
+        .notification.WARNING {
+            border-left-color: #ffc107;
+        }
+        .notification.ERROR {
+            border-left-color: #dc3545;
+        }
+        .notification-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .notification-content {
+            color: #666;
+        }
+        .notification-meta {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔔 Notification WebSocket Client</h1>
+        
+        <div id="status" class="status disconnected">
+            Статус: Отключено
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <button id="connectBtn" onclick="connect()">Подключиться</button>
+            <button id="disconnectBtn" onclick="disconnect()" disabled>Отключиться</button>
+        </div>
+
+        <h3>Отправить уведомление</h3>
+        <div class="form-group">
+            <label>Уровень:</label>
+            <select id="level">
+                <option value="INFO">INFO</option>
+                <option value="WARNING">WARNING</option>
+                <option value="ERROR">ERROR</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Содержание:</label>
+            <textarea id="content" rows="3" placeholder="Введите текст уведомления..."></textarea>
+        </div>
+        <button onclick="sendNotification()">Отправить</button>
+        
+        <h3>Полученные уведомления:</h3>
+        <div id="notifications" class="notifications">
+            <p style="color: #999; text-align: center;">Подключитесь, чтобы получать уведомления</p>
+        </div>
+    </div>
+
+    <script>
+        let stompClient = null;
+
+        function connect() {
+            const socket = new SockJS('http://localhost:8080/notification-hub');
+            stompClient = Stomp.over(socket);
+            
+            stompClient.connect({}, function(frame) {
+                console.log('Connected: ' + frame);
+                setConnected(true);
+                
+                // Подписываемся на уведомления
+                stompClient.subscribe('/topic/notifications', function(message) {
+                    const notification = JSON.parse(message.body);
+                    showNotification(notification);
+                });
+
+                // Подписываемся на pong для тестирования
+                stompClient.subscribe('/topic/pong', function(message) {
+                    console.log('Pong received:', message.body);
+                });
+            }, function(error) {
+                console.error('Connection error:', error);
+                setConnected(false);
+            });
+        }
+
+        function disconnect() {
+            if (stompClient !== null) {
+                stompClient.disconnect();
+            }
+            setConnected(false);
+        }
+
+        function setConnected(connected) {
+            const statusDiv = document.getElementById('status');
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            
+            if (connected) {
+                statusDiv.className = 'status connected';
+                statusDiv.textContent = 'Статус: Подключено ✓';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                document.getElementById('notifications').innerHTML = '';
+            } else {
+                statusDiv.className = 'status disconnected';
+                statusDiv.textContent = 'Статус: Отключено';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+            }
+        }
+
+        function sendNotification() {
+            const level = document.getElementById('level').value;
+            const content = document.getElementById('content').value;
+            
+            if (!content.trim()) {
+                alert('Введите текст уведомления');
+                return;
+            }
+
+            const notification = {
+                id: generateId(),
+                date: new Date().toISOString(),
+                level: level,
+                content: content,
+                sentAt: new Date().toISOString()
+            };
+
+            stompClient.send('/app/send-notification', {}, JSON.stringify(notification));
+            document.getElementById('content').value = '';
+        }
+
+        function showNotification(notification) {
+            const notificationsDiv = document.getElementById('notifications');
+            const div = document.createElement('div');
+            div.className = 'notification ' + (notification.level || 'INFO');
+            
+            const date = notification.date ? new Date(notification.date) : new Date();
+            const sentAt = notification.sentAt ? new Date(notification.sentAt) : new Date();
+            
+            div.innerHTML = `
+                <div class="notification-header">[${notification.level || 'INFO'}] ${notification.id || 'N/A'}</div>
+                <div class="notification-content">${escapeHtml(notification.content || 'No content')}</div>
+                <div class="notification-meta">
+                    Дата: ${date.toLocaleString()} | Получено: ${sentAt.toLocaleString()}
+                </div>
+            `;
+            
+            notificationsDiv.insertBefore(div, notificationsDiv.firstChild);
+        }
+
+        function generateId() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
