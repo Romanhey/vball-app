@@ -4,28 +4,39 @@ import com.example.notification.dto.NotificationRequest;
 import com.example.notification.dto.NotificationResponse;
 import com.example.notification.exception.NotificationNotFoundException;
 import com.example.notification.model.Notification;
+import com.example.notification.repository.NotificationStore;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class NotificationService {
 
-    private final Map<Long, Notification> notifications = new ConcurrentHashMap<>();
-    private final AtomicLong idGenerator = new AtomicLong(1);
+    private final NotificationStore notificationStore;
+
+    public NotificationService(NotificationStore notificationStore) {
+        this.notificationStore = notificationStore;
+    }
 
     public List<NotificationResponse> getAllNotifications() {
-        return notifications.values().stream()
+        return notificationStore.findAll().stream()
+                .sorted(Comparator.comparing(Notification::getCreatedAt))
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    public List<NotificationResponse> getNotificationsFromLastDays(long days) {
+        LocalDateTime threshold = LocalDateTime.now().minusDays(days);
+        return notificationStore.findSince(threshold).stream()
+                .sorted(Comparator.comparing(Notification::getCreatedAt))
                 .map(this::mapToResponse)
                 .toList();
     }
 
     public NotificationResponse getNotificationById(Long id) {
-        Notification notification = notifications.get(id);
+        Notification notification = notificationStore.findById(id);
         if (notification == null) {
             throw new NotificationNotFoundException("Notification not found with id: " + id);
         }
@@ -34,18 +45,16 @@ public class NotificationService {
 
     public NotificationResponse createNotification(NotificationRequest request) {
         Notification notification = new Notification();
-        notification.setId(idGenerator.getAndIncrement());
         notification.setTitle(request.getTitle());
         notification.setMessage(request.getMessage());
         notification.setType(request.getType() != null ? request.getType() : "INFO");
         notification.setCreatedAt(LocalDateTime.now());
 
-        notifications.put(notification.getId(), notification);
-        return mapToResponse(notification);
+        return mapToResponse(notificationStore.save(notification));
     }
 
     public NotificationResponse updateNotification(Long id, NotificationRequest request) {
-        Notification existing = notifications.get(id);
+        Notification existing = notificationStore.findById(id);
         if (existing == null) {
             throw new NotificationNotFoundException("Notification not found with id: " + id);
         }
@@ -60,10 +69,20 @@ public class NotificationService {
     }
 
     public void deleteNotification(Long id) {
-        if (!notifications.containsKey(id)) {
+        boolean removed = notificationStore.removeById(id);
+        if (!removed) {
             throw new NotificationNotFoundException("Notification not found with id: " + id);
         }
-        notifications.remove(id);
+    }
+
+    public NotificationResponse createNotificationFromGrpc(String level, String content, LocalDateTime date) {
+        Notification notification = new Notification();
+        notification.setTitle(level != null ? level : "INFO");
+        notification.setMessage(content);
+        notification.setType(level != null ? level : "INFO");
+        notification.setCreatedAt(date != null ? date : LocalDateTime.now());
+
+        return mapToResponse(notificationStore.save(notification));
     }
 
     private NotificationResponse mapToResponse(Notification notification) {

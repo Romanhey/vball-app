@@ -1,30 +1,33 @@
 package com.example.notification.grpc;
 
-import com.example.notification.signalr.SignalRService;
+import com.example.notification.service.NotificationService;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * gRPC сервис для приема уведомлений и отправки их через SignalR.
+ * gRPC сервис для приема уведомлений и сохранения их в хранилище.
  */
 @GrpcService
 public class NotificationGrpcServiceImpl extends NotificationGrpcServiceGrpc.NotificationGrpcServiceImplBase {
 
     private static final Logger logger = LoggerFactory.getLogger(NotificationGrpcServiceImpl.class);
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     
-    private final SignalRService signalRService;
+    private final NotificationService notificationService;
 
-    public NotificationGrpcServiceImpl(SignalRService signalRService) {
-        this.signalRService = signalRService;
+    public NotificationGrpcServiceImpl(NotificationService notificationService) {
+        this.notificationService = notificationService;
     }
 
     /**
-     * Принимает одно уведомление и отправляет его клиентам через SignalR.
+     * Принимает одно уведомление и сохраняет его.
      */
     @Override
     public void sendNotification(NotificationRequest request, StreamObserver<NotificationResponse> responseObserver) {
@@ -32,25 +35,22 @@ public class NotificationGrpcServiceImpl extends NotificationGrpcServiceGrpc.Not
                 request.getDate(), request.getLevel(), request.getContent());
 
         try {
-            // Отправляем уведомление через SignalR
-            boolean success = signalRService.sendNotificationToClients(
-                    request.getDate(),
+            var stored = notificationService.createNotificationFromGrpc(
                     request.getLevel(),
-                    request.getContent()
+                    request.getContent(),
+                    parseDate(request.getDate())
             );
 
-            String notificationId = UUID.randomUUID().toString();
-            
             NotificationResponse response = NotificationResponse.newBuilder()
-                    .setSuccess(success)
-                    .setMessage(success ? "Notification sent successfully" : "Failed to send notification")
-                    .setNotificationId(notificationId)
+                    .setSuccess(true)
+                    .setMessage("Notification stored successfully")
+                    .setNotificationId(String.valueOf(stored.getId()))
                     .build();
 
             responseObserver.onNext(response);
             responseObserver.onCompleted();
             
-            logger.info("Notification processed successfully with ID: {}", notificationId);
+            logger.info("Notification stored successfully with ID: {}", stored.getId());
             
         } catch (Exception e) {
             logger.error("Error processing notification", e);
@@ -67,7 +67,7 @@ public class NotificationGrpcServiceImpl extends NotificationGrpcServiceGrpc.Not
     }
 
     /**
-     * Принимает поток уведомлений и отправляет их клиентам через SignalR.
+     * Принимает поток уведомлений и сохраняет их.
      * Возвращает общий результат после обработки всех уведомлений.
      */
     @Override
@@ -82,17 +82,12 @@ public class NotificationGrpcServiceImpl extends NotificationGrpcServiceGrpc.Not
                         request.getDate(), request.getLevel(), request.getContent());
 
                 try {
-                    boolean success = signalRService.sendNotificationToClients(
-                            request.getDate(),
+                    notificationService.createNotificationFromGrpc(
                             request.getLevel(),
-                            request.getContent()
+                            request.getContent(),
+                            parseDate(request.getDate())
                     );
-
-                    if (success) {
-                        successCount.incrementAndGet();
-                    } else {
-                        failCount.incrementAndGet();
-                    }
+                    successCount.incrementAndGet();
                 } catch (Exception e) {
                     logger.error("Error processing streaming notification", e);
                     failCount.incrementAndGet();
@@ -133,5 +128,14 @@ public class NotificationGrpcServiceImpl extends NotificationGrpcServiceGrpc.Not
                 logger.info("Completed processing notification stream: {}", message);
             }
         };
+    }
+
+    private LocalDateTime parseDate(String date) {
+        try {
+            return LocalDateTime.parse(date, DATE_FORMATTER);
+        } catch (Exception e) {
+            logger.warn("Could not parse date '{}', using current time", date);
+            return LocalDateTime.now();
+        }
     }
 }

@@ -25,6 +25,11 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.getAllNotifications());
     }
 
+    @GetMapping("/recent")
+    public ResponseEntity<List<NotificationResponse>> getRecentNotifications() {
+        return ResponseEntity.ok(notificationService.getNotificationsFromLastDays(2));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<NotificationResponse> getNotificationById(@PathVariable Long id) {
         return ResponseEntity.ok(notificationService.getNotificationById(id));
