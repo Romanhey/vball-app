@@ -36,3 +36,4 @@ VBALL.Client/.idea/
 **/Migrations
 
 VBALL.Notifications/target/
+.vscode/settings.json

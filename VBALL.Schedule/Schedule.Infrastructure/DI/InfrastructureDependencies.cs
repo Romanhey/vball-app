@@ -12,6 +12,7 @@ using Schedule.Infrastructure.Options;
 using Schedule.Infrastructure.Protos;
 using Schedule.Infrastructure.RpcServices;
 using System.Net.Http;
+using System.Threading;
 
 namespace Schedule.Infrastructure.DI
 {
@@ -54,15 +55,35 @@ namespace Schedule.Infrastructure.DI
 
         public static void ApplyDatabaseMigration(this IHost host)
         {
-            using var scope = host.Services.CreateScope();
+            const int maxRetries = 10;
+            const int delayMs = 2000;
+            var attempt = 0;
 
-            var services = scope.ServiceProvider;
-
-            var context = services.GetRequiredService<ApplicationDbContext>();
-
-            if (context.Database.GetPendingMigrations().Any())
+            while (true)
             {
-                context.Database.Migrate();
+                using var scope = host.Services.CreateScope();
+                var services = scope.ServiceProvider;
+                var context = services.GetRequiredService<ApplicationDbContext>();
+
+                try
+                {
+                    if (context.Database.GetPendingMigrations().Any())
+                    {
+                        context.Database.Migrate();
+                    }
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    attempt++;
+                    if (attempt >= maxRetries)
+                    {
+                        throw new Exception("Exceeded max retry attempts to connect to DB", ex);
+                    }
+
+                    Console.WriteLine($"[MIGRATION RETRY] attempt {attempt}/{maxRetries} failed, retrying in {delayMs / 1000.0}s...");
+                    Thread.Sleep(delayMs);
+                }
             }
         }
     }

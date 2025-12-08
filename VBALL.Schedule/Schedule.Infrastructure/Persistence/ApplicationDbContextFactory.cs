@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Schedule.Infrastructure.Persistence;
@@ -12,7 +12,8 @@ namespace Schedule.Infrastructure.Persistence
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "../Schedule.Presentation")))
                 .AddJsonFile("appsettings.json", optional: false)
-                .AddJsonFile("appsettings.Development.json", optional: false)
+                .AddJsonFile("appsettings.Development.json", optional: true)
+                .AddEnvironmentVariables()
                 .Build();
 
             var connectionString = configuration.GetConnectionString("DefaultConnection");
