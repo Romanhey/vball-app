@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Schedule.Domain.Entities;
 using Schedule.Domain.IRepositories;
 
@@ -48,8 +48,8 @@ namespace Schedule.Infrastructure.Persistence.Repositories
         {
             return await Context.Participation
                 .CountAsync(p => p.MatchId == matchId
-                    && p.Status == ParticipationStatus.Registered 
-                    && p.Status == ParticipationStatus.Confirmed,
+                    && (p.Status == ParticipationStatus.Registered 
+                        || p.Status == ParticipationStatus.Confirmed),
                     cancellationToken);
         }
 

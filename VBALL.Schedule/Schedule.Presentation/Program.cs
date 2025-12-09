@@ -22,7 +22,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.ApplyDatabaseMigration();
+if (!app.Environment.IsEnvironment("Test"))
+{
+    app.ApplyDatabaseMigration();
+}
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
@@ -30,3 +33,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Expose Program for integration testing
+public partial class Program { }
