@@ -71,3 +71,4 @@ public class MatchControllerTests(ScheduleWebApplicationFactory factory) : Integ
 
     }
 }
+

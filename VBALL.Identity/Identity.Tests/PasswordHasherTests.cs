@@ -19,3 +19,4 @@ public class PasswordHasherTests
         hasher.VerifyHashedPassword(hash, password).Should().BeTrue();
     }
 }
+

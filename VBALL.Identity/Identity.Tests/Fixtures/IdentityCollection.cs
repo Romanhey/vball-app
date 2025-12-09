@@ -7,3 +7,4 @@ public class IdentityCollection : ICollectionFixture<IdentityWebApplicationFacto
 {
     public const string CollectionName = "IdentityCollection";
 }
+

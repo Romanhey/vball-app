@@ -30,3 +30,4 @@ public abstract class IntegrationTestBase
 
     protected IServiceScope CreateScope() => Factory.Services.CreateScope();
 }
+

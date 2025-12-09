@@ -84,3 +84,4 @@ public class ParticipationControllerTests(ScheduleWebApplicationFactory factory)
         db.SaveChanges();
     }
 }
+

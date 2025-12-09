@@ -14,3 +14,4 @@ public abstract class RepositoryTestBase
         return new ApplicationDbContext(options);
     }
 }
+

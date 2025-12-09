@@ -48,3 +48,4 @@ public class AuthControllerTests(IdentityWebApplicationFactory factory) : Integr
 
     private record LoginResult(string AccesToken);
 }
+

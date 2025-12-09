@@ -7,3 +7,4 @@ public class ScheduleCollection : ICollectionFixture<ScheduleWebApplicationFacto
 {
     public const string CollectionName = "ScheduleCollection";
 }
+

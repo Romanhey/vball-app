@@ -78,3 +78,4 @@ public class StartMatchCommandHandlerTests
         uow.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }
+

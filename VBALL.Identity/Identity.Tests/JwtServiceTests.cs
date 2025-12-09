@@ -36,3 +36,4 @@ public class JwtServiceTests
         token.Split('.').Length.Should().Be(3); // header.payload.signature
     }
 }
+

@@ -9,3 +9,4 @@ WORKDIR /app
 EXPOSE 8080 9090
 COPY --from=build /build/target/notification-api-service-0.0.1-SNAPSHOT.jar /app/app.jar
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+

@@ -48,3 +48,4 @@ public class TeamControllerTests(ScheduleWebApplicationFactory factory) : Integr
         deleteResponse.EnsureSuccessStatusCode();
     }
 }
+

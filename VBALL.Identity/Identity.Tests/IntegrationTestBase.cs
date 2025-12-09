@@ -27,3 +27,4 @@ public abstract class IntegrationTestBase
 
     protected Task ResetDatabaseAsync() => Factory.ResetDatabaseAsync();
 }
+

@@ -22,3 +22,4 @@ WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:5054
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "Schedule.Presentation.dll"]
+

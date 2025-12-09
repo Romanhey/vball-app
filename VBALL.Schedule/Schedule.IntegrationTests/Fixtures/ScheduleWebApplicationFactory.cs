@@ -105,3 +105,4 @@ public class ScheduleWebApplicationFactory : WebApplicationFactory<Program>, IAs
         }
     }
 }
+
