@@ -7,10 +7,10 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres21
-      POSTGRES_PASSWORD: 123
+      POSTGRES_PASSWORD: "123"
       POSTGRES_DB: schedule_db
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/
     ports:
       - "5432:5432"
     networks:
@@ -25,11 +25,17 @@ services:
       - postgres
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:5000
-      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${IDENTITY_DB:-identity_db};Username=${POSTGRES_USER:-postgres21};Password=${POSTGRES_PASSWORD:-123};Include Error Detail=true
-      JwtSettings__Secret: ${IDENTITY_JWT_SECRET:-dev-identity-secret}
-      JwtSettings__Issuer: ${IDENTITY_JWT_ISSUER:-Vball_app_server}
-      JwtSettings__Audience: ${IDENTITY_JWT_AUDIENCE:-Vball_app_client}
+      ASPNETCORE_URLS: http://0.0.0.0:5000
+      ConnectionStrings__DefaultConnection: >
+        Host=postgres;
+        Port=5432;
+        Database=identity_db;
+        Username=postgres21;
+        Password=123;
+        Include Error Detail=true
+      JwtSettings__Secret: dev-identity-secret
+      JwtSettings__Issuer: Vball_app_server
+      JwtSettings__Audience: Vball_app_client
     ports:
       - "5000:5000"
     networks:
@@ -45,8 +51,14 @@ services:
       - notifications
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:5054
-      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${SCHEDULE_DB:-schedule_db};Username=${POSTGRES_USER:-postgres21};Password=${POSTGRES_PASSWORD:-123};Include Error Detail=true
+      ASPNETCORE_URLS: http://0.0.0.0:5054
+      ConnectionStrings__DefaultConnection: >
+        Host=postgres;
+        Port=5432;
+        Database=schedule_db;
+        Username=postgres21;
+        Password=123;
+        Include Error Detail=true
     ports:
       - "5054:5054"
     networks:
@@ -67,8 +79,6 @@ services:
     networks:
       - vball
 
-  # Build React client (runs once to build and populate volume)
-  # Usage: docker-compose --profile build up client-build
   client-build:
     container_name: vball-client-build
     build:
@@ -80,10 +90,12 @@ services:
       - vball
     profiles:
       - build
-    # Copy build files to volume and keep container running
-    command: sh -c "echo 'Copying build files to /static...' && rm -rf /static/* && cp -r /build-output/* /static/ && echo 'Files copied. Contents:' && ls -la /static && tail -f /dev/null"
+    command: >
+      sh -c "echo 'Copying build files...' &&
+             rm -rf /static/* &&
+             cp -r /build-output/* /static/ &&
+             tail -f /dev/null"
 
-  # Nginx reverse proxy
   nginx:
     container_name: vball-nginx
     build:
@@ -107,4 +119,3 @@ networks:
 volumes:
   postgres_data:
   client_static:
-

@@ -12,3 +12,4 @@
 **/build
 diagram.txt
 **/package-lock.json
+.env
