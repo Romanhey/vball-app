@@ -12,7 +12,7 @@ namespace Identity.Infrastructure.Services
     
     public class JWTService(IConfiguration config):IJwtService   
     {
-    private readonly IConfigurationSection _jwtSettings = config.GetSection("Jwt")!;
+    private readonly IConfigurationSection _jwtSettings = config.GetSection("JwtSettings")!;
         public string GenerateJwtToken(User user)
         {
             var claims = new List<Claim>

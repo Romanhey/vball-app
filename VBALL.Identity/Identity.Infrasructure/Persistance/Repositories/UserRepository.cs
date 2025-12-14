@@ -19,10 +19,10 @@ namespace Identity.Infastucture.Persistance.Repositories
           await _context.Users.AddAsync(user);
         }
 
-        public  Task DeleteAsync(User user)
+        public Task DeleteAsync(User user)
         {
             _context.Users.Remove(user);
-            return  Task.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public async Task<List<User>> GetAllAsync(int page, int pageSize)

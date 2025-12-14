@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Identity.Application\Identity.Application.csproj" />
-    <ProjectReference Include="..\Identity.Infrasructure\Identity.Infastucture.csproj" />
     <ProjectReference Include="..\Identity.Infrasructure\Identity.Infrastructure.csproj" />
   </ItemGroup>
 

@@ -1,9 +1,7 @@
 ﻿using FluentValidation;
-using Identity.Application.DTO;
 using Identity.Application.MappingProfiles;
 using Identity.Application.UseCases.Commands.LoginUser;
 using Identity.Application.UseCases.Commands.RegisterUser;
-using Identity.Application.UseCases.Validators;
 using Microsoft.Extensions.DependencyInjection;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
