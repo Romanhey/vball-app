@@ -1,6 +1,5 @@
-﻿using AutoMapper;
-using MediatR;
-using Schedule.Application.Exeptions;
+﻿using MediatR;
+using Schedule.Application.Exceptions;
 using Schedule.Domain.IRepositories;
 
 namespace Schedule.Application.UseCases.Team.UpdateTeam
@@ -11,13 +10,18 @@ namespace Schedule.Application.UseCases.Team.UpdateTeam
     {
         public async Task Handle(UpdateTeamCommand request, CancellationToken cancellationToken)
         {
-            var team = await unitOfWork.TeamRepository.GetByIdAsync(request.teamId, cancellationToken);
+            var team = await unitOfWork.TeamRepository.GetByIdAsync(request.TeamId, cancellationToken);
 
             if (team is null) throw new NotFoundException("Team not found");
 
-            team.Name = request.dto.Name;
+            var exists = await unitOfWork.TeamRepository.GetAsync<Domain.Entities.Team>(t => t.Name == request.Dto.Name && t.TeamId != request.TeamId, cancellationToken: cancellationToken);
+            if (exists.Any())
+                throw new AlreadyExistException($"Team with name '{request.Dto.Name}' already exists");
 
-            await unitOfWork.TeamRepository.UpdateAsync(team);
+            team.Name = request.Dto.Name;
+            team.Rating = request.Dto.Rating;
+
+            await unitOfWork.TeamRepository.UpdateAsync(team, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }

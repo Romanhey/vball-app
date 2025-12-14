@@ -1,20 +1,18 @@
 ﻿using MediatR;
-using Schedule.Application.Exeptions;
 using Schedule.Domain.IRepositories;
 
 namespace Schedule.Application.UseCases.Participation.DeleteParticipation
 {
-    public record DeleteParticipationCommandHandler(
+    public class DeleteParticipationCommandHandler(
         IUnitOfWork unitOfWork
         ) : IRequestHandler<DeleteParticipationCommand>
     {
         public async Task Handle(DeleteParticipationCommand request, CancellationToken cancellationToken)
         {
-            var participation = await unitOfWork.ParticipationRepository.GetByIdAsync(request.participationId, cancellationToken);
+            // Note: Participation existence and match finished validation is handled by FinishedMatchValidationBehavior
+            var participation = (await unitOfWork.ParticipationRepository.GetByIdAsync(request.ParticipationId, cancellationToken))!;
 
-            if (participation is null) throw new NotFoundException("Participation not found");
-
-            await unitOfWork.ParticipationRepository.DeleteAsync(participation);
+            await unitOfWork.ParticipationRepository.DeleteAsync(participation, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }

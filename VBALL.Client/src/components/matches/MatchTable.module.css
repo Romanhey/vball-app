@@ -1,0 +1,30 @@
+.tableWrapper {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e4e7ef;
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: #f4f5f9;
+  text-align: left;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.table th,
+.table td {
+  padding: 0.85rem;
+  border-bottom: 1px solid #eef1f5;
+}
+
+.status {
+  font-size: 0.85rem;
+  font-weight: 600;
+}

@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option csharp_namespace = "Schedule.Share.Protos";
+
+service Identity { rpc GetUsers(UsersIds) returns (UserResponse); }
+
+message UsersIds { repeated int32 UsersIds = 1; }
+
+message User {
+  int32 id = 1;
+  string name = 2;
+}
+
+message UserResponse { repeated User users = 1; }

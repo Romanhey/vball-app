@@ -3,5 +3,5 @@ using Schedule.Application.DTO.Team;
 
 namespace Schedule.Application.UseCases.Team.CreateTeam
 {
-    public record CreateTeamCommand(CreateTeamDTO dto) : IRequest;
+    public record CreateTeamCommand(CreateTeamDTO Dto) : IRequest;
 }

@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option csharp_namespace = "Schedule.Infrastructure.Protos";
+
+package notification;
+
+message NotificationRequest {
+  string user_id = 1;
+  string date = 2;
+  string level = 3;
+  string content = 4;
+}
+
+message NotificationResponse {
+  bool success = 1;
+  string message = 2;
+  string notification_id = 3;
+}
+
+service NotificationGrpcService {
+  rpc SendNotification (NotificationRequest) returns (NotificationResponse);
+  rpc SendNotifications (stream NotificationRequest) returns (NotificationResponse);
+}

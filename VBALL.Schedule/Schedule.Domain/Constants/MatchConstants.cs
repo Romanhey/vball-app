@@ -2,8 +2,8 @@
 {
     public static class MatchConstants
     {
-        public const int MaxSetCout = 5;
+        public const int MaxSetCount = 5;
         public const int PointsToWinSet = 25;
-        public const int PoitsToWinTieBreak = 15;
+        public const int PointsToWinTieBreak = 15;
     }
 }

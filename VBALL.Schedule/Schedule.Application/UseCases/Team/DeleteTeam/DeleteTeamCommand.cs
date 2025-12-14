@@ -2,5 +2,5 @@
 
 namespace Schedule.Application.UseCases.Team.DeleteTeam
 {
-    public record DeleteTeamCommand(int teamId) : IRequest;
+    public record DeleteTeamCommand(int TeamId) : IRequest;
 }

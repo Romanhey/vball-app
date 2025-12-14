@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.example.notification.grpc";
+option java_outer_classname = "NotificationProto";
+
+package notification;
+
+// Запрос на отправку уведомления
+message NotificationRequest {
+    string date = 1;           // Дата уведомления
+    string level = 2;          // Уровень уведомления (INFO, WARNING, ERROR, etc.)
+    string content = 3;        // Содержание уведомления
+}
+
+// Ответ на отправку уведомления
+message NotificationResponse {
+    bool success = 1;          // Успешность отправки
+    string message = 2;        // Сообщение о результате
+    string notification_id = 3; // ID созданного уведомления
+}
+
+// Сервис уведомлений
+service NotificationGrpcService {
+    // Отправить уведомление
+    rpc SendNotification(NotificationRequest) returns (NotificationResponse);
+    
+    // Отправить несколько уведомлений (streaming)
+    rpc SendNotifications(stream NotificationRequest) returns (NotificationResponse);
+}

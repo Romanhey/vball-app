@@ -1,0 +1,17 @@
+.page {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  padding: 1.5rem;
+}
+
+.title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.meta {
+  color: #6b7280;
+  font-size: 0.95rem;
+}

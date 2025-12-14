@@ -1,12 +1,16 @@
+using System.Text.Json.Serialization;
 using Schedule.Application.DI;
 using Schedule.Infrastructure.DI;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddInfrastructureService(builder.Configuration);
 builder.Services.AddApplicationService();
@@ -18,7 +22,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.ApplyDatabaseMigration();
+if (!app.Environment.IsEnvironment("Test"))
+{
+    app.ApplyDatabaseMigration();
+}
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
@@ -26,3 +33,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Expose Program for integration testing
+public partial class Program { }

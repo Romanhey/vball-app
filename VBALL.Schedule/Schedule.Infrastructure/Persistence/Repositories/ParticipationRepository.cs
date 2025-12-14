@@ -1,41 +1,57 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Schedule.Domain.Entities;
 using Schedule.Domain.IRepositories;
 
 namespace Schedule.Infrastructure.Persistence.Repositories
 {
-    public class ParticipationRepository(ApplicationDbContext context) : IParticipationRepository
+    public class ParticipationRepository(ApplicationDbContext context) : BaseRepository<Participation>(context), IParticipationRepository
     {
-        public async Task AddAsync(Participation entity, CancellationToken cancellationToken = default)
+        public async Task<Participation?> GetByMatchAndPlayerAsync(int matchId, int playerId, CancellationToken cancellationToken)
         {
-            await context.Participations.AddAsync(entity, cancellationToken);
+            return await Context.Participation
+                .FirstOrDefaultAsync(p => p.MatchId == matchId && p.PlayerId == playerId, cancellationToken);
         }
 
-        public Task DeleteAsync(Participation entity, CancellationToken cancellationToken = default)
+        public async Task<List<Participation>> GetByMatchAsync(int matchId, CancellationToken cancellationToken)
         {
-            context.Participations.Remove(entity);
-            return Task.CompletedTask;
+            return await Context.Participation
+                .Where(p => p.MatchId == matchId)
+                .OrderBy(p => p.CreatedAt)
+                .ToListAsync(cancellationToken);
         }
 
-        public IQueryable<Participation> GetAll()
+        public async Task<List<Participation>> GetByPlayerAsync(int playerId, CancellationToken cancellationToken)
         {
-            return context.Participations.AsQueryable();
+            return await Context.Participation
+                .Where(p => p.PlayerId == playerId)
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync(cancellationToken);
         }
 
-        public async Task<List<Participation>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<List<Participation>> GetByStatusAsync(ParticipationStatus status, CancellationToken cancellationToken)
         {
-            return await context.Participations.ToListAsync();
+            return await Context.Participation
+                .Where(p => p.Status == status)
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync(cancellationToken);
         }
 
-        public async Task<Participation?> GetByIdAsync(int id, CancellationToken cancellationToken)
+        public async Task<List<Participation>> GetByTeamIdAsync(int teamId, CancellationToken cancellationToken)
         {
-            return await context.Participations.FindAsync(id, cancellationToken);
+            return await Context.Participation
+                .Where(p => p.TeamId == teamId)
+                .OrderBy(p => p.CreatedAt)
+                .ToListAsync(cancellationToken);
         }
 
-        public Task UpdateAsync(Participation entity, CancellationToken cancellationToken = default)
+        public async Task<int> GetActiveParticipationCountForMatchAsync(int matchId, CancellationToken cancellationToken)
         {
-            context.Participations.Update(entity);
-            return Task.CompletedTask;
+            return await Context.Participation
+                .CountAsync(p => p.MatchId == matchId
+                    && (p.Status == ParticipationStatus.Registered 
+                        || p.Status == ParticipationStatus.Confirmed),
+                    cancellationToken);
         }
+
     }
 }

@@ -1,0 +1,76 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: vball-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres21
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: schedule_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - vball
+
+  identity:
+    container_name: vball-identity
+    build:
+      context: ./VBALL.Identity
+      dockerfile: ./Identity.Presentation/Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5000
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${IDENTITY_DB:-identity_db};Username=${POSTGRES_USER:-postgres21};Password=${POSTGRES_PASSWORD:-123};Include Error Detail=true
+      JwtSettings__Secret: ${IDENTITY_JWT_SECRET:-dev-identity-secret}
+      JwtSettings__Issuer: ${IDENTITY_JWT_ISSUER:-Vball_app_server}
+      JwtSettings__Audience: ${IDENTITY_JWT_AUDIENCE:-Vball_app_client}
+    ports:
+      - "5000:5000"
+    networks:
+      - vball
+
+  schedule:
+    container_name: vball-schedule
+    build:
+      context: ./VBALL.Schedule
+      dockerfile: ./Schedule.Presentation/Dockerfile
+    depends_on:
+      - postgres
+      - notifications
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5054
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${SCHEDULE_DB:-schedule_db};Username=${POSTGRES_USER:-postgres21};Password=${POSTGRES_PASSWORD:-123};Include Error Detail=true
+    ports:
+      - "5054:5054"
+    networks:
+      - vball
+
+  notifications:
+    container_name: vball-notifications
+    build:
+      context: ./VBALL.Notifications
+      dockerfile: ./Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SERVER_PORT: 8080
+      GRPC_SERVER_PORT: 9090
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    networks:
+      - vball
+
+networks:
+  vball:
+    driver: bridge
+
+volumes:
+  postgres_data:
+

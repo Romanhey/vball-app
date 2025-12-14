@@ -1,0 +1,26 @@
+.calendarWrapper {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e4e7ef;
+  padding: 1rem;
+}
+
+.legend {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.legendDot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+}
