@@ -7,7 +7,7 @@ export class RootStore {
   readonly scheduleStore = new ScheduleStore();
 
   constructor() {
-    this.scheduleStore.bootstrapMockData();
+    // Mock data removed - using real API services now
   }
 }
 
@@ -18,7 +18,7 @@ interface StoreProviderProps {
 }
 
 export const StoreProvider = ({ children }: StoreProviderProps) => {
-  const storeRef = useRef<RootStore>();
+  const storeRef = useRef<RootStore | null>(null);
 
   if (!storeRef.current) {
     storeRef.current = new RootStore();

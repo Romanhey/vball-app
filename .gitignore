@@ -12,3 +12,4 @@
 **/target
 **/build
 diagram.txt
+**/package-lock.json
