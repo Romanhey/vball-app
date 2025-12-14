@@ -67,10 +67,44 @@ services:
     networks:
       - vball
 
+  # Build React client (runs once to build and populate volume)
+  # Usage: docker-compose --profile build up client-build
+  client-build:
+    container_name: vball-client-build
+    build:
+      context: ./VBALL.Client
+      dockerfile: ./Dockerfile
+    volumes:
+      - client_static:/static
+    networks:
+      - vball
+    profiles:
+      - build
+    # Copy build files to volume and keep container running
+    command: sh -c "echo 'Copying build files to /static...' && rm -rf /static/* && cp -r /build-output/* /static/ && echo 'Files copied. Contents:' && ls -la /static && tail -f /dev/null"
+
+  # Nginx reverse proxy
+  nginx:
+    container_name: vball-nginx
+    build:
+      context: ./nginx
+      dockerfile: ./Dockerfile
+    depends_on:
+      - identity
+      - schedule
+    ports:
+      - "80:80"
+    volumes:
+      - client_static:/usr/share/nginx/html:ro
+    networks:
+      - vball
+    restart: unless-stopped
+
 networks:
   vball:
     driver: bridge
 
 volumes:
   postgres_data:
+  client_static:
 
