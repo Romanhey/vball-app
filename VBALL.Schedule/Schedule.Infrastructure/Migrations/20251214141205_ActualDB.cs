@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Schedule.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class addEntities : Migration
+    public partial class ActualDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,36 +30,6 @@ namespace Schedule.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Participations",
-                columns: table => new
-                {
-                    ParticipationId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    MatchId = table.Column<int>(type: "integer", nullable: false),
-                    PlayerId = table.Column<int>(type: "integer", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Status = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Participations", x => x.ParticipationId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TeamAssignments",
-                columns: table => new
-                {
-                    TeamAssigmentId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ParticipationId = table.Column<int>(type: "integer", nullable: false),
-                    TeamId = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TeamAssigments", x => x.TeamAssigmentId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Teams",
                 columns: table => new
                 {
@@ -72,6 +42,36 @@ namespace Schedule.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Teams", x => x.TeamId);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "Participation",
+                columns: table => new
+                {
+                    ParticipationId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    MatchId = table.Column<int>(type: "integer", nullable: false),
+                    PlayerId = table.Column<int>(type: "integer", nullable: false),
+                    TeamId = table.Column<int>(type: "integer", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    CancellationReason = table.Column<string>(type: "text", nullable: true),
+                    CancellationType = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Participation", x => x.ParticipationId);
+                    table.ForeignKey(
+                        name: "FK_Participation_Teams_TeamId",
+                        column: x => x.TeamId,
+                        principalTable: "Teams",
+                        principalColumn: "TeamId");
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Participation_TeamId",
+                table: "Participation",
+                column: "TeamId");
         }
 
         /// <inheritdoc />
@@ -81,10 +81,7 @@ namespace Schedule.Infrastructure.Migrations
                 name: "Matches");
 
             migrationBuilder.DropTable(
-                name: "Participations");
-
-            migrationBuilder.DropTable(
-                name: "TeamAssignments");
+                name: "Participation");
 
             migrationBuilder.DropTable(
                 name: "Teams");

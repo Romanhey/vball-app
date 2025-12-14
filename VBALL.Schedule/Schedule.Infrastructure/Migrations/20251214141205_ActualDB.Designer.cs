@@ -12,8 +12,8 @@ using Schedule.Infrastructure.Persistence;
 namespace Schedule.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250801171239_addEntities")]
-    partial class addEntities
+    [Migration("20251214141205_ActualDB")]
+    partial class ActualDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -61,6 +61,12 @@ namespace Schedule.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ParticipationId"));
 
+                    b.Property<string>("CancellationReason")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("CancellationType")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -73,9 +79,17 @@ namespace Schedule.Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("TeamId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("ParticipationId");
 
-                    b.ToTable("Participations");
+                    b.HasIndex("TeamId");
+
+                    b.ToTable("Participation");
                 });
 
             modelBuilder.Entity("Schedule.Domain.Entities.Team", b =>
@@ -98,23 +112,11 @@ namespace Schedule.Infrastructure.Migrations
                     b.ToTable("Teams");
                 });
 
-            modelBuilder.Entity("Schedule.Domain.Entities.TeamAssignment", b =>
+            modelBuilder.Entity("Schedule.Domain.Entities.Participation", b =>
                 {
-                    b.Property<int>("TeamAssignmentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TeamAssignmentId"));
-
-                    b.Property<int>("ParticipationId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TeamId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("TeamAssignmentId");
-
-                    b.ToTable("TeamAssignments");
+                    b.HasOne("Schedule.Domain.Entities.Team", null)
+                        .WithMany()
+                        .HasForeignKey("TeamId");
                 });
 #pragma warning restore 612, 618
         }
