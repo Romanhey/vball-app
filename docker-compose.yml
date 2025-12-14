@@ -33,7 +33,7 @@ services:
         Username=postgres21;
         Password=123;
         Include Error Detail=true
-      JwtSettings__Secret: dev-identity-secret
+      JwtSettings__Secret: AoehmeHJpmeoMNepmpcwqz&Lnd#%68ajndaNAoehmeHJpmeoMNepmpcwqz&Lnd#%68ajndaN
       JwtSettings__Issuer: Vball_app_server
       JwtSettings__Audience: Vball_app_client
     ports:

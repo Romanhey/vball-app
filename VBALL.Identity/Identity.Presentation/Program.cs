@@ -10,14 +10,6 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo 
-    { 
-        Title = "Identity API", 
-        Version = "v1" 
-    });
-});
 
 // Configure CORS
 builder.Services.AddCors(options =>
@@ -65,10 +57,10 @@ if (app.Environment.IsDevelopment())
         c.DisplayOperationId();
     });
 }
+app.ApplyDatabaseMigration();
 
 // CORS must be before other middleware
 app.UseCors();
-
 // Skip HTTPS redirection in development when behind nginx
 if (!app.Environment.IsDevelopment())
 {
