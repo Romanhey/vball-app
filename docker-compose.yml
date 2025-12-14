@@ -27,7 +27,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:5000
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${IDENTITY_DB:-identity_db};Username=${POSTGRES_USER:-postgres21};Password=${POSTGRES_PASSWORD:-123};Include Error Detail=true
-      JwtSettings__Secret: ${IDENTITY_JWT_SECRET:-dev-identity-secret}
+      JwtSettings__Secret: ${IDENTITY_JWT_SECRET:-AoehmeHJpmeoMNepmpcwqz&Lnd#%68ajndaNAoehmeHJpmeoMNepmpcwqz&Lnd#%68ajndaN}
       JwtSettings__Issuer: ${IDENTITY_JWT_ISSUER:-Vball_app_server}
       JwtSettings__Audience: ${IDENTITY_JWT_AUDIENCE:-Vball_app_client}
     ports:
