@@ -4,7 +4,6 @@ using Schedule.Infrastructure.DI;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
@@ -41,7 +40,7 @@ if (app.Environment.IsDevelopment())
 
 if (!app.Environment.IsEnvironment("Test"))
 {
-    app.ApplyDatabaseMigration();
+    await app.ApplyDatabaseMigrationAsync();
 }
 
 app.UseCors();

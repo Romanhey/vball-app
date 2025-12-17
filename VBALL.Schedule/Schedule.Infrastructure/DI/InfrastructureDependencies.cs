@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +14,6 @@ using Schedule.Infrastructure.Options;
 using Schedule.Infrastructure.Protos;
 using Schedule.Infrastructure.RpcServices;
 using System.Net.Http;
-using System.Threading;
 
 namespace Schedule.Infrastructure.DI
 {
@@ -53,7 +54,7 @@ namespace Schedule.Infrastructure.DI
             return services;
         }
 
-        public static void ApplyDatabaseMigration(this IHost host)
+        public static async Task ApplyDatabaseMigrationAsync(this IHost host)
         {
             const int maxRetries = 10;
             const int delayMs = 2000;
@@ -67,9 +68,21 @@ namespace Schedule.Infrastructure.DI
 
                 try
                 {
-                    if (context.Database.GetPendingMigrations().Any())
+                    if (!context.Database.CanConnect())
                     {
+                        throw new Exception("Cannot connect to database");
+                    }
+
+                    var pendingMigrations = context.Database.GetPendingMigrations().ToList();
+                    if (pendingMigrations.Any())
+                    {
+                        Console.WriteLine($"[MIGRATION] Applying {pendingMigrations.Count} pending migration(s)...");
                         context.Database.Migrate();
+                        Console.WriteLine($"[MIGRATION] Migrations applied successfully.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[MIGRATION] Database is up to date.");
                     }
                     break;
                 }
@@ -82,7 +95,7 @@ namespace Schedule.Infrastructure.DI
                     }
 
                     Console.WriteLine($"[MIGRATION RETRY] attempt {attempt}/{maxRetries} failed, retrying in {delayMs / 1000.0}s...");
-                    Thread.Sleep(delayMs);
+                    await Task.Delay(delayMs);
                 }
             }
         }
