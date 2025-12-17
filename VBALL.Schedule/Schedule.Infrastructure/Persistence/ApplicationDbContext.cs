@@ -14,11 +14,30 @@ namespace Schedule.Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Match>()
+                .HasOne<Team>()
+                .WithMany()
+                .HasForeignKey(m => m.TeamAId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Match>()
+                .HasOne<Team>()
+                .WithMany()
+                .HasForeignKey(m => m.TeamBId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Participation>()
+                .HasOne<Match>()
+                .WithMany()
+                .HasForeignKey(p => p.MatchId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Participation>()
                 .HasOne<Team>()
                 .WithMany()
                 .HasForeignKey(p => p.TeamId)
-                .IsRequired(false);
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

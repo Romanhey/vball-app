@@ -13,5 +13,6 @@ namespace Identity.Domain.IRepository
         Task<List<User>> GetAllAsync(int page, int pageSize);
 
         Task<int> GetCountAsync();
+        Task<List<User>> GetByIdsAsync(IEnumerable<int> ids);
     }
 }

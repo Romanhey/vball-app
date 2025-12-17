@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Schedule.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace Schedule.Infrastructure.Migrations
+namespace Schedule.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251217194727_InitialSchedule")]
+    partial class InitialSchedule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -46,6 +49,10 @@ namespace Schedule.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("MatchId");
+
+                    b.HasIndex("TeamAId");
+
+                    b.HasIndex("TeamBId");
 
                     b.ToTable("Matches");
                 });
@@ -84,6 +91,8 @@ namespace Schedule.Infrastructure.Migrations
 
                     b.HasKey("ParticipationId");
 
+                    b.HasIndex("MatchId");
+
                     b.HasIndex("TeamId");
 
                     b.ToTable("Participation");
@@ -109,11 +118,33 @@ namespace Schedule.Infrastructure.Migrations
                     b.ToTable("Teams");
                 });
 
-            modelBuilder.Entity("Schedule.Domain.Entities.Participation", b =>
+            modelBuilder.Entity("Schedule.Domain.Entities.Match", b =>
                 {
                     b.HasOne("Schedule.Domain.Entities.Team", null)
                         .WithMany()
-                        .HasForeignKey("TeamId");
+                        .HasForeignKey("TeamAId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Schedule.Domain.Entities.Team", null)
+                        .WithMany()
+                        .HasForeignKey("TeamBId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Schedule.Domain.Entities.Participation", b =>
+                {
+                    b.HasOne("Schedule.Domain.Entities.Match", null)
+                        .WithMany()
+                        .HasForeignKey("MatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Schedule.Domain.Entities.Team", null)
+                        .WithMany()
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 #pragma warning restore 612, 618
         }

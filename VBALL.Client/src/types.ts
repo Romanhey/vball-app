@@ -65,15 +65,36 @@ export interface Notification {
   actionRequired?: boolean;
 }
 
+export type UserRole = 'Player' | 'Admin';
+
+export interface PlayerProfileStats {
+  totalRequests: number;
+  confirmed: number;
+  finished: number;
+  cancellations: number;
+}
+
 export interface PlayerProfile {
   id: number;
   name: string;
   email: string;
-  height: number;
-  age: number;
-  gamesPlayed: number;
-  winRate: number; // percentage
-  phone: string;
+  role?: UserRole;
+  phone?: string;
+  height?: number;
+  age?: number;
+  stats?: PlayerProfileStats;
+}
+
+export interface Participation {
+  participationId: number;
+  matchId: number;
+  playerId: number;
+  teamId?: number | null;
+  createdAt: string;
+  updatedAt?: string;
+  status: ParticipationStatus;
+  cancellationReason?: string | null;
+  cancellationType?: CancellationType | null;
 }
 
 // ========== Auth DTOs ==========
@@ -90,7 +111,10 @@ export interface RegisterDTO {
 }
 
 export interface LoginResponse {
-  AccesToken: string;
+  AccesToken?: string;
+  accesToken?: string;
+  AccessToken?: string;
+  accessToken?: string;
 }
 
 // ========== Match DTOs ==========
@@ -104,7 +128,7 @@ export interface UpdateMatchDTO {
   startTime?: string;
   teamAId?: number;
   teamBId?: number;
-  status?: MatchStatus;
+  matchStatus?: MatchStatus;
   finalScore?: string;
 }
 

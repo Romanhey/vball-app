@@ -22,6 +22,7 @@ namespace Identity.Application.MappingProfiles
                     ((IPasswordHasher)context.Items["PasswordHasher"]).HashPassword(src.Password))
                 );
 
+            CreateMap<User, UserProfileDTO>();
         }
     }
 }

@@ -41,9 +41,17 @@ export const clearToken = (): void => {
   setToken(null);
 };
 
+const isProduction = process.env.NODE_ENV === 'production';
+const identityBaseUrl =
+  process.env.REACT_APP_IDENTITY_API ?? (isProduction ? '/identity' : 'http://localhost:5000');
+const scheduleBaseUrl =
+  process.env.REACT_APP_SCHEDULE_API ?? (isProduction ? '/schedule' : 'http://localhost:5054');
+const notificationsBaseUrl =
+  process.env.REACT_APP_NOTIFICATIONS_API ?? 'http://localhost:8080';
+
 // Create axios instance for Identity API
 export const identityApiClient = axios.create({
-  baseURL: 'http://localhost/identity',
+  baseURL: identityBaseUrl,
   withCredentials: true, // Important for cookie-based refresh tokens
   headers: {
     'Content-Type': 'application/json',
@@ -52,7 +60,7 @@ export const identityApiClient = axios.create({
 
 // Create axios instance for Schedule API
 export const scheduleApiClient = axios.create({
-  baseURL: process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost/schedule',
+  baseURL: scheduleBaseUrl,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -61,7 +69,7 @@ export const scheduleApiClient = axios.create({
 
 // Create axios instance for Notifications API
 export const notificationsApiClient = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: notificationsBaseUrl,
   headers: {
     'Content-Type': 'application/json',
   },

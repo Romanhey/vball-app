@@ -9,6 +9,9 @@ interface MatchCardProps {
   onToggle: (id: number) => void;
   onClick: (id: number) => void;
   readonly?: boolean;
+  disabled?: boolean;
+  statusBadge?: string;
+  statusTone?: 'neutral' | 'success' | 'warning' | 'danger';
 }
 
 export const MatchCard: React.FC<MatchCardProps> = ({ 
@@ -17,7 +20,10 @@ export const MatchCard: React.FC<MatchCardProps> = ({
   isSelected, 
   onToggle, 
   onClick, 
-  readonly = false 
+  readonly = false,
+  disabled = false,
+  statusBadge,
+  statusTone = 'neutral',
 }) => {
   const teamA = teams[match.teamAId];
   const teamB = teams[match.teamBId];
@@ -39,18 +45,36 @@ export const MatchCard: React.FC<MatchCardProps> = ({
   // Add format suffix if needed, as seen in screenshot "Storm - Varyagi(4x4)"
   const displayTitle = match.format === '4x4' ? `${title}(4x4)` : title;
 
+  const toneClasses: Record<'neutral' | 'success' | 'warning' | 'danger', string> = {
+    neutral: 'bg-[#E8DEF8] text-[#65558F]',
+    success: 'bg-[#C8E6C9] text-[#256029]',
+    warning: 'bg-[#FFF3CD] text-[#8B6C00]',
+    danger: 'bg-[#FDE7E9] text-[#B3261E]',
+  };
+
   return (
-    <div 
+    <div
       className={`
         relative flex items-center justify-between mb-2 rounded-lg 
-        transition-colors duration-200 select-none
+        transition-colors duration-200 select-none border border-transparent
         ${isSelected ? 'bg-[#E8DEF8]' : 'bg-[#F3EDF7] hover:bg-[#EADDFF]'}
+        ${disabled ? 'opacity-60 cursor-not-allowed' : ''}
       `}
     >
+      {statusBadge && (
+        <span
+          className={`
+            absolute right-3 top-2 text-[11px] font-semibold px-2 py-0.5 rounded-full
+            ${toneClasses[statusTone]}
+          `}
+        >
+          {statusBadge}
+        </span>
+      )}
       {/* Clickable body for details navigation */}
       <div 
         className={`flex-1 flex flex-col p-3 cursor-pointer ${readonly ? 'pr-3' : ''}`}
-        onClick={() => onClick(match.matchId)}
+        onClick={() => !disabled && onClick(match.matchId)}
       >
         <div className="flex justify-between items-center">
              <span className="text-[#1D1B20] text-[15px] font-medium leading-tight">
@@ -75,6 +99,9 @@ export const MatchCard: React.FC<MatchCardProps> = ({
             className="flex items-center px-3 py-3 cursor-pointer h-full"
             onClick={(e) => {
             e.stopPropagation();
+            if (disabled) {
+              return;
+            }
             onToggle(match.matchId);
             }}
         >

@@ -15,12 +15,13 @@ namespace Schedule.Presentation.Controllers
     [Route("api/[controller]")]
     public class MatchController(IMediator mediator, IMapper mapper) : ControllerBase
     {
+        [Authorize(Roles = "Admin")]
         [HttpPost]
-            public async Task<IActionResult> CreateMatch([FromBody] CreateMatchDTO dto, CancellationToken cancellationToken)
-            {
-                await mediator.Send(mapper.Map<CreateMatchCommand>(dto), cancellationToken);
-                return Ok();
-            }
+        public async Task<IActionResult> CreateMatch([FromBody] CreateMatchDTO dto, CancellationToken cancellationToken)
+        {
+            await mediator.Send(mapper.Map<CreateMatchCommand>(dto), cancellationToken);
+            return Ok();
+        }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMatchById(int id, CancellationToken cancellationToken)
@@ -28,6 +29,15 @@ namespace Schedule.Presentation.Controllers
             return Ok(await mediator.Send(new GetMatchQuery(id), cancellationToken));
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateMatch(int id, [FromBody] UpdateMatchDTO dto, CancellationToken cancellationToken)
+        {
+            await mediator.Send(mapper.Map<UpdateMatchCommand>((id, dto)), cancellationToken);
+            return Ok();
+        }
+
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}/start")]
         public async Task<IActionResult> StartMatch(int id, CancellationToken cancellationToken)
         {
@@ -35,6 +45,7 @@ namespace Schedule.Presentation.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}/finish")]
         public async Task<IActionResult> FinishMatch(int id, [FromBody] string finalScore, CancellationToken cancellationToken)
         {
@@ -42,8 +53,8 @@ namespace Schedule.Presentation.Controllers
             return Ok();
         }
 
-        [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMatch(int id, CancellationToken cancellationToken)
         {
             await mediator.Send(new DeleteMatchCommand(id), cancellationToken);

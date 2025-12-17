@@ -27,8 +27,8 @@ export const authService = {
   /**
    * Refresh access token using refresh token from cookie
    */
-  async refreshToken(): Promise<string> {
-    const response = await identityApiClient.post<LoginResponse>('/api/Auth/refresh-token');
-    return response.data.AccesToken;
+  async refreshToken(): Promise<LoginResponse | string> {
+    const response = await identityApiClient.post<LoginResponse | string>('/api/Auth/refresh-token');
+    return response.data;
   },
 };
