@@ -2,6 +2,7 @@
 using Identity.Domain.IRepository;
 using Identity.Infrastructure.Persistance;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Identity.Infastucture.Persistance.Repositories
 {
@@ -49,6 +50,13 @@ namespace Identity.Infastucture.Persistance.Repositories
         public Task<int> GetCountAsync()
         {
             return _context.Users.CountAsync();
+        }
+
+        public Task<List<User>> GetByIdsAsync(IEnumerable<int> ids)
+        {
+            return _context.Users
+                .Where(user => ids.Contains(user.Id))
+                .ToListAsync();
         }
     }
 }

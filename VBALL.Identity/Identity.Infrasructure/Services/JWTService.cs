@@ -19,7 +19,8 @@ namespace Identity.Infrastructure.Services
             {
                 new Claim("uid", user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim("adm", user.IsAdmin ? "1" : "0")
+                new Claim("adm", user.IsAdmin ? "1" : "0"),
+                new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "Player")
             };
             var secret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings["Secret"]!));
             var creds = new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);

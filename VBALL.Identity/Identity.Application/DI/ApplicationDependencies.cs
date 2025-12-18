@@ -15,6 +15,7 @@ public static class ApplicationDependencies
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(LoginUserCommandHandler).Assembly));
         services.AddAutoMapper(typeof(RegisterUserMappingProfile));
         services.AddAutoMapper(typeof(LoginResponseMappingProfile));
+        services.AddAutoMapper(typeof(UserMappngProfile));
         services.AddFluentValidationAutoValidation();
         services.AddScoped<IValidator<RegisterUserCommand>, RegisterUserCommandValidation>();
         services.AddScoped<IValidator<LoginUserCommand>, LoginUserCommandValidation>();

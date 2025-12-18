@@ -25,7 +25,7 @@ export const teamService = {
     if (params?.take !== undefined) queryParams.append('take', params.take.toString());
 
     const queryString = queryParams.toString();
-    const url = `/api/Team${queryString ? `?${queryString}` : ''}`;
+    const url = `/Team${queryString ? `?${queryString}` : ''}`;
     
     const response = await scheduleApiClient.get<Team[]>(url);
     return response.data;
@@ -36,7 +36,7 @@ export const teamService = {
    */
   async getTeam(id: number): Promise<Team | null> {
     try {
-      const response = await scheduleApiClient.get<Team>(`/api/Team/${id}`);
+      const response = await scheduleApiClient.get<Team>(`/Team/${id}`);
       return response.data;
     } catch (error: any) {
       if (error.response?.status === 404) {
@@ -50,7 +50,7 @@ export const teamService = {
    * Create new team
    */
   async createTeam(dto: CreateTeamDTO): Promise<Team> {
-    const response = await scheduleApiClient.post<Team>('/api/Team', dto);
+    const response = await scheduleApiClient.post<Team>('/Team', dto);
     return response.data;
   },
 
@@ -58,7 +58,7 @@ export const teamService = {
    * Update team
    */
   async updateTeam(id: number, dto: UpdateTeamDTO): Promise<Team> {
-    const response = await scheduleApiClient.put<Team>(`/api/Team/${id}`, dto);
+    const response = await scheduleApiClient.put<Team>(`/Team/${id}`, dto);
     return response.data;
   },
 
@@ -66,14 +66,14 @@ export const teamService = {
    * Delete team
    */
   async deleteTeam(id: number): Promise<void> {
-    await scheduleApiClient.delete(`/api/Team/${id}`);
+    await scheduleApiClient.delete(`/Team/${id}`);
   },
 
   /**
    * Get team players
    */
   async getTeamPlayers(id: number): Promise<any[]> {
-    const response = await scheduleApiClient.get<any[]>(`/api/Team/${id}/players`);
+    const response = await scheduleApiClient.get<any[]>(`/Team/${id}/players`);
     return response.data;
   },
 
@@ -81,7 +81,7 @@ export const teamService = {
    * Get team matches
    */
   async getTeamMatches(id: number): Promise<Match[]> {
-    const response = await scheduleApiClient.get<Match[]>(`/api/Team/${id}/matches`);
+    const response = await scheduleApiClient.get<Match[]>(`/Team/${id}/matches`);
     return response.data.map(match => ({
       ...match,
       startTime: typeof match.startTime === 'string' 

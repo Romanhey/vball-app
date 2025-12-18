@@ -1,5 +1,5 @@
 import { scheduleApiClient } from './httpClient';
-import type { Match, CreateMatchDTO, MatchStatus } from '../types';
+import type { Match, CreateMatchDTO, MatchStatus, UpdateMatchDTO } from '../types';
 
 export interface GetMatchesParams {
   FromDate?: string; // ISO date-time string
@@ -25,7 +25,7 @@ export const matchService = {
     if (params?.take !== undefined) queryParams.append('take', params.take.toString());
 
     const queryString = queryParams.toString();
-    const url = `/api/Match${queryString ? `?${queryString}` : ''}`;
+    const url = `/Match${queryString ? `?${queryString}` : ''}`;
     
     const response = await scheduleApiClient.get<Match[]>(url);
     return response.data.map(match => ({
@@ -41,7 +41,7 @@ export const matchService = {
    */
   async getMatch(id: number): Promise<Match | null> {
     try {
-      const response = await scheduleApiClient.get<Match>(`/api/Match/${id}`);
+      const response = await scheduleApiClient.get<Match>(`/Match/${id}`);
       return {
         ...response.data,
         startTime: typeof response.data.startTime === 'string' 
@@ -59,35 +59,36 @@ export const matchService = {
   /**
    * Create new match
    */
-  async createMatch(dto: CreateMatchDTO): Promise<Match> {
-    const response = await scheduleApiClient.post<Match>('/api/Match', dto);
-    return {
-      ...response.data,
-      startTime: typeof response.data.startTime === 'string' 
-        ? new Date(response.data.startTime) 
-        : response.data.startTime,
-    };
+  async createMatch(dto: CreateMatchDTO): Promise<void> {
+    await scheduleApiClient.post('/Match', dto);
+  },
+
+  /**
+   * Update existing match
+   */
+  async updateMatch(id: number, dto: UpdateMatchDTO): Promise<void> {
+    await scheduleApiClient.put(`/Match/${id}`, dto);
   },
 
   /**
    * Delete match
    */
   async deleteMatch(id: number): Promise<void> {
-    await scheduleApiClient.delete(`/api/Match/${id}`);
+    await scheduleApiClient.delete(`/Match/${id}`);
   },
 
   /**
    * Start match
    */
   async startMatch(id: number): Promise<void> {
-    await scheduleApiClient.put(`/api/Match/${id}/start`);
+    await scheduleApiClient.put(`/Match/${id}/start`);
   },
 
   /**
    * Finish match with final score
    */
   async finishMatch(id: number, finalScore: string): Promise<void> {
-    await scheduleApiClient.put(`/api/Match/${id}/finish`, finalScore, {
+    await scheduleApiClient.put(`/Match/${id}/finish`, finalScore, {
       headers: {
         'Content-Type': 'application/json',
       },

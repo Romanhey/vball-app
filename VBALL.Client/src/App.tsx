@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { StoreProvider, useAuthStore } from './stores/rootStore';
 import { LoginForm } from './components/LoginForm';
@@ -10,19 +10,26 @@ import { SideMenu } from './components/SideMenu';
 import { NotificationsPage } from './components/NotificationsPage';
 import { ProfilePage } from './components/ProfilePage';
 import { MatchDetails } from './components/MatchDetails';
-import { Match, Team, Notification, PlayerProfile } from './types';
+import { Match, Team, Notification, PlayerProfile, Participation, UserRole } from './types';
 import { matchService } from './services/matchService';
 import { teamService } from './services/teamService';
 import { notificationService } from './services/notificationService';
 import { NotificationResponse } from './types';
+import { participationService } from './services/participationService';
+import { userService } from './services/userService';
+import { AdminPage } from './pages/AdminPage/AdminPage';
+import { AdminTeamsPage } from './pages/AdminTeamsPage/AdminTeamsPage';
 
 // Main App Content with routing
 const AppContent: React.FC = observer(() => {
   const authStore = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
   
   // Navigation State
-  const [activePage, setActivePage] = useState<'HOME' | 'NOTIFICATIONS' | 'PROFILE'>('HOME');
+  type ShellPage = 'HOME' | 'NOTIFICATIONS' | 'PROFILE';
+  type MenuPage = ShellPage | 'ADMIN' | 'ADMIN_TEAMS';
+  const [activePage, setActivePage] = useState<ShellPage>('HOME');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [viewMatchId, setViewMatchId] = useState<number | null>(null);
 
@@ -31,57 +38,135 @@ const AppContent: React.FC = observer(() => {
   const [teams, setTeams] = useState<Record<number, Team>>({});
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
+  const [participations, setParticipations] = useState<Participation[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Load data when authenticated
+  const refreshParticipations = useCallback(async () => {
+    if (!authStore.isAuthenticated || !authStore.user?.id) {
+      setParticipations([]);
+      return;
+    }
+
+    try {
+      const data = await participationService.getParticipations({
+        PlayerId: Number(authStore.user.id),
+        take: 200,
+      });
+      setParticipations(data);
+    } catch (error) {
+      console.error('Error loading participations:', error);
+    }
+  }, [authStore.isAuthenticated, authStore.user?.id]);
+
+  const createProfileFromAuth = useCallback((): PlayerProfile | null => {
+    if (!authStore.user) {
+      return null;
+    }
+
+    const inferredRole: UserRole = authStore.isAdmin ? 'Admin' : 'Player';
+
+    return {
+      id: Number(authStore.user.id),
+      name: authStore.user.name ?? authStore.user.email,
+      email: authStore.user.email,
+      role: inferredRole,
+    };
+  }, [authStore.user, authStore.isAdmin]);
+
   useEffect(() => {
-    if (!authStore.isAuthenticated) return;
+    if (authStore.user) {
+      setProfile((prev) => prev ?? createProfileFromAuth());
+    } else {
+      setProfile(null);
+    }
+  }, [authStore.user, createProfileFromAuth]);
 
-    const loadData = async () => {
-      setLoading(true);
-      try {
-        const [matchesData, teamsData, notificationsData] = await Promise.all([
-          matchService.getMatches({ skip: 0, take: 100 }),
-          teamService.getTeams({ skip: 0, take: 100 }),
-          notificationService.getRecentNotifications().catch(() => [])
-        ]);
+  const loadAllData = useCallback(async () => {
+    if (!authStore.isAuthenticated) {
+      setMatches([]);
+      setTeams({});
+      setNotifications([]);
+      setProfile(null);
+      setParticipations([]);
+      return;
+    }
 
-        setMatches(matchesData);
-        
+    setLoading(true);
+    try {
+      const [matchesResult, teamsResult, notificationsResult, profileResult] = await Promise.allSettled([
+        matchService.getMatches({ skip: 0, take: 100 }),
+        teamService.getTeams({ skip: 0, take: 100 }),
+        notificationService.getRecentNotifications(),
+        userService.getCurrentUser(),
+      ]);
+
+      if (matchesResult.status === 'fulfilled') {
+        setMatches(matchesResult.value);
+      } else {
+        console.warn('Не удалось загрузить матчи', matchesResult.reason);
+        setMatches([]);
+      }
+
+      if (teamsResult.status === 'fulfilled') {
         const teamsRecord: Record<number, Team> = {};
-        teamsData.forEach(team => {
+        teamsResult.value.forEach((team) => {
           teamsRecord[team.teamId] = team;
         });
         setTeams(teamsRecord);
+      } else {
+        console.warn('Не удалось загрузить команды', teamsResult.reason);
+        setTeams({});
+      }
 
-        // Convert NotificationResponse to Notification format
-        const convertedNotifications: Notification[] = notificationsData.map((n: NotificationResponse) => ({
+      if (notificationsResult.status === 'fulfilled') {
+        const convertedNotifications: Notification[] = notificationsResult.value.map((n: NotificationResponse) => ({
           id: n.id,
           type: n.type === 'INFO' ? 'info' : 'confirmation',
           title: n.title,
           text: n.message,
-          dateStr: new Date(n.createdAt).toLocaleDateString('ru-RU', { 
-            day: 'numeric', 
-            month: 'short', 
-            hour: '2-digit', 
-            minute: '2-digit' 
+          dateStr: new Date(n.createdAt).toLocaleDateString('ru-RU', {
+            day: 'numeric',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
           }),
-          isRead: false, // TODO: Add read status from API if available
+          isRead: false,
         }));
-
         setNotifications(convertedNotifications);
-        setProfile(null); // TODO: Load profile from API when available
-      } catch (error) {
-        console.error('Error loading data:', error);
-      } finally {
-        setLoading(false);
+      } else {
+        console.warn('Не удалось загрузить уведомления', notificationsResult.reason);
+        setNotifications([]);
       }
-    };
 
-    loadData();
-  }, [authStore.isAuthenticated]);
+      if (profileResult.status === 'fulfilled' && profileResult.value) {
+        setProfile(profileResult.value);
+      } else if (authStore.user) {
+        setProfile((prev) => prev ?? createProfileFromAuth());
+      }
 
-  const handleNavigate = (page: 'HOME' | 'NOTIFICATIONS' | 'PROFILE') => {
+      await refreshParticipations();
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [authStore.isAuthenticated, authStore.user, createProfileFromAuth, refreshParticipations]);
+
+  useEffect(() => {
+    loadAllData();
+  }, [loadAllData]);
+
+  const handleNavigate = (page: MenuPage) => {
+    if (page === 'ADMIN' || page === 'ADMIN_TEAMS') {
+      setIsMenuOpen(false);
+      navigate(page === 'ADMIN' ? '/admin' : '/admin/teams');
+      return;
+    }
+
+    if (location.pathname !== '/home') {
+      navigate('/home');
+    }
+
     setActivePage(page);
     setIsMenuOpen(false);
     setViewMatchId(null);
@@ -91,15 +176,85 @@ const AppContent: React.FC = observer(() => {
     setViewMatchId(id);
   };
 
+  const handleApplyToMatches = async (matchIds: number[]) => {
+    if (!authStore.user?.id) {
+      throw new Error('Не удалось определить пользователя');
+    }
+
+    const availableIds = matchIds.filter(
+      (matchId) => !participations.some((p) => p.matchId === matchId)
+    );
+
+    if (!availableIds.length) {
+      return;
+    }
+
+    await Promise.all(
+      availableIds.map((matchId) =>
+        participationService.createParticipation({
+          matchId,
+          playerId: Number(authStore.user!.id),
+        })
+      )
+    );
+
+    await refreshParticipations();
+  };
+
   const handleLoginSuccess = () => {
-    navigate('/home');
+    setActivePage('HOME');
+    setViewMatchId(null);
+    setIsMenuOpen(false);
+    navigate(authStore.isAdmin ? '/admin' : '/home');
   };
 
   const handleRegisterSuccess = () => {
     navigate('/login');
   };
 
+  const handleLogout = () => {
+    authStore.logout();
+    setMatches([]);
+    setTeams({});
+    setNotifications([]);
+    setParticipations([]);
+    setProfile(null);
+    setViewMatchId(null);
+    setActivePage('HOME');
+    setIsMenuOpen(false);
+    navigate('/login');
+  };
+
   const unreadNotificationsCount = notifications.filter(n => !n.isRead).length;
+  const menuActivePage: MenuPage = useMemo(() => {
+    if (location.pathname.startsWith('/admin/teams')) {
+      return 'ADMIN_TEAMS';
+    }
+    if (location.pathname.startsWith('/admin')) {
+      return 'ADMIN';
+    }
+    return activePage;
+  }, [activePage, location.pathname]);
+
+  const renderAdminLayout = (content: React.ReactNode) => (
+    <ProtectedRoute requireAdmin>
+      <div className="min-h-screen bg-[#ECE6F0] text-[#1D1B20] flex justify-center font-sans">
+        <div className="w-full max-w-5xl bg-[#ECE6F0] min-h-screen shadow-2xl relative flex flex-col overflow-hidden">
+          <SideMenu
+            isOpen={isMenuOpen}
+            onClose={() => setIsMenuOpen(false)}
+            activePage={menuActivePage}
+            onNavigate={handleNavigate}
+            unreadCount={unreadNotificationsCount}
+            showAdminLink={authStore.isAdmin}
+            onLogout={handleLogout}
+          />
+
+          <main className="flex-1 flex flex-col overflow-hidden">{content}</main>
+        </div>
+      </div>
+    </ProtectedRoute>
+  );
 
   // Loading state
   if (loading && authStore.isAuthenticated) {
@@ -155,6 +310,30 @@ const AppContent: React.FC = observer(() => {
           />
         )
       } />
+      <Route
+        path="/admin"
+        element={renderAdminLayout(
+          <AdminPage
+            matches={matches}
+            teams={teams}
+            onRefresh={loadAllData}
+            onOpenMenu={() => setIsMenuOpen(true)}
+            onMatchClick={handleMatchClick}
+            isLoading={loading}
+          />
+        )}
+      />
+      <Route
+        path="/admin/teams"
+        element={renderAdminLayout(
+          <AdminTeamsPage
+            teams={Object.values(teams)}
+            onRefresh={loadAllData}
+            onOpenMenu={() => setIsMenuOpen(true)}
+            isLoading={loading}
+          />
+        )}
+      />
       <Route path="/home" element={
         <ProtectedRoute>
           <div className="min-h-screen bg-[#ECE6F0] text-[#1D1B20] flex justify-center font-sans">
@@ -162,9 +341,11 @@ const AppContent: React.FC = observer(() => {
               <SideMenu 
                 isOpen={isMenuOpen} 
                 onClose={() => setIsMenuOpen(false)} 
-                activePage={activePage}
+                activePage={menuActivePage}
                 onNavigate={handleNavigate}
                 unreadCount={unreadNotificationsCount}
+                showAdminLink={authStore.isAdmin}
+                onLogout={handleLogout}
               />
 
               <main className="flex-1 flex flex-col overflow-hidden">
@@ -178,17 +359,25 @@ const AppContent: React.FC = observer(() => {
                 {activePage === 'PROFILE' && (
                   <ProfilePage 
                     profile={profile}
-                    historyMatches={matches.filter(m => m.status === 2)}
+                    participations={participations}
+                    matches={matches}
                     teams={teams}
                     onOpenMenu={() => setIsMenuOpen(true)}
                     onMatchClick={handleMatchClick}
+                    onLogout={handleLogout}
                   />
                 )}
 
                 {activePage === 'HOME' && (
                   <HomePage 
-                    onNavigate={handleNavigate}
+                    matches={matches}
+                    teams={teams}
+                    participations={participations}
+                    isLoading={loading}
+                    onNavigate={(page) => handleNavigate(page)}
                     onOpenMenu={() => setIsMenuOpen(true)}
+                    onMatchClick={handleMatchClick}
+                    onApplyToMatches={handleApplyToMatches}
                   />
                 )}
               </main>
@@ -196,7 +385,7 @@ const AppContent: React.FC = observer(() => {
           </div>
         </ProtectedRoute>
       } />
-      <Route path="/" element={<Navigate to="/home" replace />} />
+      <Route path="/" element={<Navigate to={authStore.isAdmin ? '/admin' : '/home'} replace />} />
     </Routes>
   );
 });

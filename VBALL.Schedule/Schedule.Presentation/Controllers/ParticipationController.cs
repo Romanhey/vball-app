@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Schedule.Application.DTO.Participation;
 using Schedule.Application.UseCases.Participation.ApproveParticipation;
@@ -23,6 +24,7 @@ namespace Schedule.Presentation.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ParticipationController(IMediator mediator, IMapper mapper) : ControllerBase
     {
         [HttpPost]
@@ -32,6 +34,7 @@ namespace Schedule.Presentation.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateParticipation(int id, [FromBody] UpdateParticipationDTO dto, CancellationToken cancellationToken)
         {
@@ -39,6 +42,7 @@ namespace Schedule.Presentation.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteParticipation(int id, CancellationToken cancellationToken)
         {
@@ -53,6 +57,7 @@ namespace Schedule.Presentation.Controllers
         }
 
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("{id}/review")]
         public async Task<IActionResult> ReviewParticipation(int id, CancellationToken cancellationToken)
         {
@@ -60,6 +65,7 @@ namespace Schedule.Presentation.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("{id}/review-waitlisted")]
         public async Task<IActionResult> ReviewWaitlistedParticipation(int id, CancellationToken cancellationToken)
         {
@@ -67,6 +73,7 @@ namespace Schedule.Presentation.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("{id}/approve")]
         public async Task<IActionResult> ApproveParticipation(int id, CancellationToken cancellationToken)
         {
@@ -74,6 +81,7 @@ namespace Schedule.Presentation.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("{id}/confirm")]
         public async Task<IActionResult> ConfirmParticipation(int id, [FromBody] int teamId, CancellationToken cancellationToken)
         {
@@ -88,6 +96,7 @@ namespace Schedule.Presentation.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("{id}/approve-cancellation")]
         public async Task<IActionResult> ApproveCancellation(int id, CancellationToken cancellationToken)
         {
@@ -95,6 +104,7 @@ namespace Schedule.Presentation.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("{id}/reject-cancellation")]
         public async Task<IActionResult> RejectCancellation(int id, CancellationToken cancellationToken)
         {
@@ -102,6 +112,7 @@ namespace Schedule.Presentation.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("{id}/admin-cancel")]
         public async Task<IActionResult> AdminCancelParticipation(int id, [FromBody] AdminCancelParticipationDTO dto, CancellationToken cancellationToken)
         {

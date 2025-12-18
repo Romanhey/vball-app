@@ -1,9 +1,94 @@
 import { makeAutoObservable } from 'mobx';
+import { jwtDecode } from 'jwt-decode';
 import { authService } from '../services/authService';
 import { setToken, clearToken, getToken, setupTokenRefresh } from '../services/httpClient';
-import { jwtDecode } from 'jwt-decode';
+import type { LoginResponse, UserRole } from '../types';
+import type { AxiosError } from 'axios';
 
-export type UserRole = 'Player' | 'Admin';
+const extractAccessToken = (response: LoginResponse | string | null | undefined): string | null => {
+  if (!response) {
+    return null;
+  }
+
+  if (typeof response === 'string') {
+    const trimmed = response.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+
+  return (
+    response.AccesToken ??
+    response.accesToken ??
+    response.AccessToken ??
+    response.accessToken ??
+    null
+  );
+};
+
+const getFirstValidationError = (errors: Record<string, string[] | string> | undefined): string | undefined => {
+  if (!errors) {
+    return undefined;
+  }
+
+  for (const value of Object.values(errors)) {
+    if (Array.isArray(value) && value.length > 0) {
+      return value[0];
+    }
+    if (typeof value === 'string' && value.trim()) {
+      return value;
+    }
+  }
+
+  return undefined;
+};
+
+const mapAuthErrorMessage = (error: AxiosError | any): string => {
+  const status = error?.response?.status;
+  const data = error?.response?.data;
+
+  let rawMessage: string | undefined;
+
+  if (typeof data === 'string') {
+    rawMessage = data;
+  } else if (data?.message) {
+    rawMessage = data.message;
+  } else if (data?.error) {
+    rawMessage = data.error;
+  } else if (data?.errors) {
+    rawMessage = getFirstValidationError(data.errors as Record<string, string[] | string>);
+  }
+
+  if (!rawMessage && typeof error?.message === 'string') {
+    rawMessage = error.message;
+  }
+
+  const normalized = rawMessage?.toLowerCase();
+
+  if (normalized?.includes('user not found')) {
+    return 'Пользователь с таким email не найден';
+  }
+
+  if (normalized?.includes('wrong password') || normalized?.includes('invalid password')) {
+    return 'Неверный пароль';
+  }
+
+  if (normalized?.includes('invalid token')) {
+    return 'Сессия недействительна. Войдите заново.';
+  }
+
+  if (status === 401) {
+    return 'Неверный email или пароль';
+  }
+
+  if (status === 400) {
+    return rawMessage || 'Некорректные данные. Проверьте введённые значения.';
+  }
+
+  if (status && status >= 500) {
+    return 'Сервер временно недоступен. Попробуйте позже.';
+  }
+
+  return rawMessage || 'Не удалось выполнить вход. Попробуйте ещё раз.';
+};
 
 export interface AuthUser {
   id: string;
@@ -91,9 +176,15 @@ export class AuthStore {
     this.error = null;
     try {
       const response = await authService.login(email, password);
-      this.setToken(response.AccesToken);
+      const token = extractAccessToken(response);
+
+      if (!token) {
+        throw new Error('Токен авторизации отсутствует в ответе сервера');
+      }
+
+      this.setToken(token);
     } catch (error: any) {
-      this.error = error.response?.data?.message || error.message || 'Login failed';
+      this.error = mapAuthErrorMessage(error);
       throw error;
     } finally {
       this.isLoading = false;
@@ -126,7 +217,13 @@ export class AuthStore {
    */
   async refreshToken(): Promise<string> {
     try {
-      const newToken = await authService.refreshToken();
+      const responseToken = await authService.refreshToken();
+      const newToken = extractAccessToken(responseToken);
+
+      if (!newToken) {
+        throw new Error('Сервер не вернул новый токен');
+      }
+
       this.setToken(newToken);
       return newToken;
     } catch (error) {

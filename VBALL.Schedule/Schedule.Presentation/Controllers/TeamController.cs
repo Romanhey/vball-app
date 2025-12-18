@@ -1,5 +1,6 @@
 using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Schedule.Application.DTO.Team;
 using Schedule.Application.UseCases.Team.CreateTeam;
@@ -16,6 +17,7 @@ namespace Schedule.Presentation.Controllers
     [Route("api/[controller]")]
     public class TeamController(IMediator mediator, IMapper mapper) : ControllerBase
     {
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateTeam([FromBody] CreateTeamDTO dto, CancellationToken cancellationToken)
         {
@@ -29,6 +31,7 @@ namespace Schedule.Presentation.Controllers
             return Ok(await mediator.Send(new GetTeamQuery(id), cancellationToken));
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTeam(int id, [FromBody] UpdateTeamDTO dto, CancellationToken cancellationToken)
         {
@@ -36,6 +39,7 @@ namespace Schedule.Presentation.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTeam(int id, CancellationToken cancellationToken)
         {

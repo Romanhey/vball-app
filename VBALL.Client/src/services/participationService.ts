@@ -5,6 +5,7 @@ import type {
   RequestCancellationDTO,
   AdminCancelParticipationDTO,
   ParticipationStatus,
+  Participation,
 } from '../types';
 
 export interface GetParticipationsParams {
@@ -17,15 +18,6 @@ export interface GetParticipationsParams {
   Status?: ParticipationStatus;
   skip?: number;
   take?: number;
-}
-
-export interface Participation {
-  id: number;
-  matchId: number;
-  playerId: number;
-  status: ParticipationStatus;
-  createdAt?: string;
-  [key: string]: any;
 }
 
 export const participationService = {
@@ -55,7 +47,7 @@ export const participationService = {
       queryParams.append('take', params.take.toString());
 
     const queryString = queryParams.toString();
-    const url = `/api/Participation${queryString ? `?${queryString}` : ''}`;
+    const url = `/Participation${queryString ? `?${queryString}` : ''}`;
     
     const response = await scheduleApiClient.get<Participation[]>(url);
     return response.data;
@@ -65,7 +57,7 @@ export const participationService = {
    * Create new participation
    */
   async createParticipation(dto: CreateParticipationDTO): Promise<Participation> {
-    const response = await scheduleApiClient.post<Participation>('/api/Participation', dto);
+    const response = await scheduleApiClient.post<Participation>('/Participation', dto);
     return response.data;
   },
 
@@ -73,7 +65,7 @@ export const participationService = {
    * Update participation
    */
   async updateParticipation(id: number, dto: UpdateParticipationDTO): Promise<Participation> {
-    const response = await scheduleApiClient.put<Participation>(`/api/Participation/${id}`, dto);
+    const response = await scheduleApiClient.put<Participation>(`/Participation/${id}`, dto);
     return response.data;
   },
 
@@ -81,35 +73,35 @@ export const participationService = {
    * Delete participation
    */
   async deleteParticipation(id: number): Promise<void> {
-    await scheduleApiClient.delete(`/api/Participation/${id}`);
+    await scheduleApiClient.delete(`/Participation/${id}`);
   },
 
   /**
    * Review participation
    */
   async reviewParticipation(id: number): Promise<void> {
-    await scheduleApiClient.post(`/api/Participation/${id}/review`);
+    await scheduleApiClient.post(`/Participation/${id}/review`);
   },
 
   /**
    * Review waitlisted participation
    */
   async reviewWaitlistedParticipation(id: number): Promise<void> {
-    await scheduleApiClient.post(`/api/Participation/${id}/review-waitlisted`);
+    await scheduleApiClient.post(`/Participation/${id}/review-waitlisted`);
   },
 
   /**
    * Approve participation
    */
   async approveParticipation(id: number): Promise<void> {
-    await scheduleApiClient.post(`/api/Participation/${id}/approve`);
+    await scheduleApiClient.post(`/Participation/${id}/approve`);
   },
 
   /**
    * Confirm participation with team ID
    */
   async confirmParticipation(id: number, teamId: number): Promise<void> {
-    await scheduleApiClient.post(`/api/Participation/${id}/confirm`, teamId, {
+    await scheduleApiClient.post(`/Participation/${id}/confirm`, teamId, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -121,27 +113,27 @@ export const participationService = {
    */
   async requestCancellation(id: number, reason?: string): Promise<void> {
     const dto: RequestCancellationDTO = { reason };
-    await scheduleApiClient.post(`/api/Participation/${id}/request-cancellation`, dto);
+    await scheduleApiClient.post(`/Participation/${id}/request-cancellation`, dto);
   },
 
   /**
    * Approve cancellation
    */
   async approveCancellation(id: number): Promise<void> {
-    await scheduleApiClient.post(`/api/Participation/${id}/approve-cancellation`);
+    await scheduleApiClient.post(`/Participation/${id}/approve-cancellation`);
   },
 
   /**
    * Reject cancellation
    */
   async rejectCancellation(id: number): Promise<void> {
-    await scheduleApiClient.post(`/api/Participation/${id}/reject-cancellation`);
+    await scheduleApiClient.post(`/Participation/${id}/reject-cancellation`);
   },
 
   /**
    * Admin cancel participation
    */
   async adminCancelParticipation(id: number, dto: AdminCancelParticipationDTO): Promise<void> {
-    await scheduleApiClient.post(`/api/Participation/${id}/admin-cancel`, dto);
+    await scheduleApiClient.post(`/Participation/${id}/admin-cancel`, dto);
   },
 };
