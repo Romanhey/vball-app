@@ -7,6 +7,7 @@ import {
   ScrollView,
   RefreshControl,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import type {
   Match,
@@ -43,6 +44,7 @@ type MenuPage = 'HOME' | 'NOTIFICATIONS' | 'PROFILE';
 export default function HomeScreen() {
   const router = useRouter();
   const authStore = useAuthStore();
+  const insets = useSafeAreaInsets();
   const {
     matches,
     teams,
@@ -188,7 +190,7 @@ export default function HomeScreen() {
 
   return (
     <>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <Pressable onPress={() => setIsMenuOpen(true)} style={styles.headerBtn}>
           <MenuIcon />
         </Pressable>
@@ -335,7 +337,7 @@ export default function HomeScreen() {
         <View style={styles.bottomSpacer} />
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + 24 }]}>
         {feedback && (
           <View
             style={[

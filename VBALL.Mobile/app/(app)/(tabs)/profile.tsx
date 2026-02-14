@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MatchStatus, ParticipationStatus } from '../../../src/types';
 import { useAppData } from '../../../src/contexts/AppDataContext';
@@ -26,6 +27,7 @@ const statusLabels: Record<ParticipationStatus, string> = {
 export default function ProfileScreen() {
   const router = useRouter();
   const authStore = useAuthStore();
+  const insets = useSafeAreaInsets();
   const { profile, participations, matches, teams } = useAppData();
   const [activeTab, setActiveTab] = useState<'DETAILS' | 'HISTORY'>('DETAILS');
 
@@ -56,7 +58,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 24 }]}>
         <Text style={styles.title}>Профиль</Text>
       </View>
 
@@ -139,7 +141,7 @@ export default function ProfileScreen() {
         )}
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
         <Pressable onPress={handleLogout} style={styles.logoutBtn}>
           <Text style={styles.logoutText}>Выйти</Text>
         </Pressable>

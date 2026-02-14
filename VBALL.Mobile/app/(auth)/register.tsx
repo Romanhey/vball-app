@@ -9,6 +9,7 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { observer } from 'mobx-react-lite';
 import { useAuthStore } from '../../src/stores/rootStore';
@@ -17,6 +18,7 @@ import { VBALL_COLORS } from '../../src/constants/theme';
 export default observer(function RegisterScreen() {
   const authStore = useAuthStore();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
@@ -70,7 +72,7 @@ export default observer(function RegisterScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView

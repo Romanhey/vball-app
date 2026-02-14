@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MatchStatus } from '../../../src/types';
 import { matchService } from '../../../src/services/matchService';
@@ -11,6 +12,7 @@ import type { Match, Team } from '../../../src/types';
 export default function MatchDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [match, setMatch] = useState<Match | null>(null);
   const [teamA, setTeamA] = useState<Team | null>(null);
   const [teamB, setTeamB] = useState<Team | null>(null);
@@ -72,7 +74,7 @@ export default function MatchDetailsScreen() {
 
   if (loading || !match) {
     return (
-      <View style={styles.loading}>
+      <View style={[styles.loading, { paddingTop: insets.top }]}>
         <ActivityIndicator size="large" color={VBALL_COLORS.primary} />
       </View>
     );
@@ -94,7 +96,7 @@ export default function MatchDetailsScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <ArrowLeftIcon />
         </Pressable>

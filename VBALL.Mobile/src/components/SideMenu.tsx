@@ -7,6 +7,7 @@ import {
   Modal,
   Dimensions,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   UserIcon,
   BellIcon,
@@ -45,6 +46,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
   showAdminLink = false,
   onLogout,
 }) => {
+  const insets = useSafeAreaInsets();
   if (!isOpen) return null;
 
   const navItem = (
@@ -88,7 +90,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={onClose} />
         <View style={styles.drawer}>
-          <View style={styles.header}>
+          <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
             <Pressable onPress={onClose} style={styles.closeBtn}>
               <MenuIcon size={24} />
             </Pressable>
@@ -101,7 +103,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
             {navItem('HOME', 'Главная', HomeIcon)}
           </View>
 
-          <View style={styles.footer}>
+          <View style={[styles.footer, { paddingBottom: insets.bottom + 24 }]}>
             <Pressable onPress={onLogout} style={styles.logoutBtn}>
               <LogOutIcon size={18} />
               <Text style={styles.logoutText}>Выйти</Text>

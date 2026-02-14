@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, Redirect } from 'expo-router';
 import { observer } from 'mobx-react-lite';
 import { useAuthStore } from '../../src/stores/rootStore';
@@ -16,6 +17,7 @@ import { VBALL_COLORS } from '../../src/constants/theme';
 export default observer(function LoginScreen() {
   const authStore = useAuthStore();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
@@ -61,7 +63,7 @@ export default observer(function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={styles.card}>

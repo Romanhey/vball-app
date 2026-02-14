@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAppData } from '../../../src/contexts/AppDataContext';
 import { ChevronLeftIcon } from '../../../src/components/Icon';
@@ -7,13 +8,17 @@ import { VBALL_COLORS } from '../../../src/constants/theme';
 
 export default function NotificationsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { notifications } = useAppData();
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 24 }]}>
         <Text style={styles.title}>Уведомления</Text>
-        <Pressable onPress={() => router.replace('/(app)/(tabs)')} style={styles.backBtn}>
+        <Pressable
+          onPress={() => router.replace('/(app)/(tabs)')}
+          style={[styles.backBtn, { top: insets.top + 20 }]}
+        >
           <ChevronLeftIcon />
         </Pressable>
       </View>

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Redirect } from 'expo-router';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { observer } from 'mobx-react-lite';
 
 import { useAuthStore } from '../src/stores/rootStore';
@@ -8,6 +9,7 @@ import { VBALL_COLORS } from '../src/constants/theme';
 
 export default observer(function IndexScreen() {
   const authStore = useAuthStore();
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     authStore.init();
@@ -15,7 +17,7 @@ export default observer(function IndexScreen() {
 
   if (!authStore.isInitialized) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
         <ActivityIndicator size="large" color={VBALL_COLORS.primary} />
       </View>
     );
