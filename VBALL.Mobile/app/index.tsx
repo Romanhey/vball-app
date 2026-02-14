@@ -1,0 +1,38 @@
+import { useEffect } from 'react';
+import { Redirect } from 'expo-router';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { observer } from 'mobx-react-lite';
+
+import { useAuthStore } from '../src/stores/rootStore';
+import { VBALL_COLORS } from '../src/constants/theme';
+
+export default observer(function IndexScreen() {
+  const authStore = useAuthStore();
+
+  useEffect(() => {
+    authStore.init();
+  }, [authStore]);
+
+  if (!authStore.isInitialized) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={VBALL_COLORS.primary} />
+      </View>
+    );
+  }
+
+  if (authStore.isAuthenticated) {
+    return <Redirect href="/(app)/(tabs)" />;
+  }
+
+  return <Redirect href="/(auth)/login" />;
+});
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: VBALL_COLORS.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

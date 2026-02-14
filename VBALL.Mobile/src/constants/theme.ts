@@ -1,0 +1,18 @@
+export const VBALL_COLORS = {
+  background: '#ECE6F0',
+  primary: '#65558F',
+  primaryHover: '#54477A',
+  text: '#1D1B20',
+  textMuted: '#49454F',
+  border: '#79747E',
+  danger: '#B3261E',
+  cardBg: '#F3EDF7',
+  cardBgHover: '#EADDFF',
+  chipActive: '#E8DEF8',
+  success: '#256029',
+  successBg: '#C8E6C9',
+  warning: '#8B6C00',
+  warningBg: '#FFF3CD',
+  dangerBg: '#FDE7E9',
+  white: '#FFFFFF',
+};
