@@ -28,6 +28,10 @@ public class ExceptionHandlerMiddleware : IMiddleware
         {
             await HandleExceptionAsync(context, HttpStatusCode.InternalServerError, ex.Message);
         }
+        catch (BadRequestException ex)
+        {
+            await HandleExceptionAsync(context, HttpStatusCode.BadRequest, ex.Message);
+        }
         catch (Exception ex)
         {
             await HandleExceptionAsync(context, HttpStatusCode.InternalServerError, ex.Message);
@@ -55,7 +59,10 @@ public class ExceptionHandlerMiddleware : IMiddleware
 
         public override string ToString()
         {
-            return JsonSerializer.Serialize(this);
+            return JsonSerializer.Serialize(this, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            });
         }
     }
 }

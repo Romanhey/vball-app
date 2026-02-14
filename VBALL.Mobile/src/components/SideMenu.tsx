@@ -14,6 +14,7 @@ import {
   HomeIcon,
   MenuIcon,
   LogOutIcon,
+  GridIcon,
 } from './Icon';
 import { VBALL_COLORS } from '../constants/theme';
 
@@ -46,6 +47,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
   showAdminLink = false,
   onLogout,
 }) => {
+  const showAdmin = showAdminLink;
   const insets = useSafeAreaInsets();
   if (!isOpen) return null;
 
@@ -101,6 +103,15 @@ export const SideMenu: React.FC<SideMenuProps> = ({
             {navItem('PROFILE', 'Профиль', UserIcon)}
             {navItem('NOTIFICATIONS', 'Уведомления', BellIcon, unreadCount)}
             {navItem('HOME', 'Главная', HomeIcon)}
+            {showAdmin && (
+              <View style={styles.adminSection}>
+                <Text style={styles.adminSectionTitle}>
+                  АДМИНИСТРИРОВАНИЕ
+                </Text>
+                {navItem('ADMIN', 'Матчи', GridIcon)}
+                {navItem('ADMIN_TEAMS', 'Команды', UserIcon)}
+              </View>
+            )}
           </View>
 
           <View style={[styles.footer, { paddingBottom: insets.bottom + 24 }]}>
@@ -174,6 +185,18 @@ const styles = StyleSheet.create({
   },
   navLabelActive: {
     color: VBALL_COLORS.text,
+  },
+  adminSection: {
+    marginTop: 16,
+  },
+  adminSectionTitle: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: VBALL_COLORS.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    paddingHorizontal: 16,
+    marginBottom: 8,
   },
   badge: {
     position: 'absolute',

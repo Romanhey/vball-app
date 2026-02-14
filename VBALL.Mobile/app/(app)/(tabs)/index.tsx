@@ -39,7 +39,12 @@ const participationStatusMeta: Record<
   [ParticipationStatus.Cancelled]: { label: 'Отменено', tone: 'danger' },
 };
 
-type MenuPage = 'HOME' | 'NOTIFICATIONS' | 'PROFILE';
+type MenuPage =
+  | 'HOME'
+  | 'NOTIFICATIONS'
+  | 'PROFILE'
+  | 'ADMIN'
+  | 'ADMIN_TEAMS';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -169,6 +174,8 @@ export default function HomeScreen() {
     setIsMenuOpen(false);
     if (page === 'NOTIFICATIONS') router.push('/(app)/(tabs)/notifications');
     else if (page === 'PROFILE') router.push('/(app)/(tabs)/profile');
+    else if (page === 'ADMIN') router.push('/(app)/admin');
+    else if (page === 'ADMIN_TEAMS') router.push('/(app)/admin/teams');
     else setActivePage('HOME');
   };
 

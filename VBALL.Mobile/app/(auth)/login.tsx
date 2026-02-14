@@ -49,14 +49,22 @@ export default observer(function LoginScreen() {
     try {
       await authStore.login(email, password);
       setLoginSuccess(true);
-      router.replace('/(app)/(tabs)');
+      router.replace(
+        authStore.isAdmin ? '/(app)/(tabs)/admin' : '/(app)/(tabs)'
+      );
     } catch {
       setLocalError(authStore.error || 'Ошибка входа');
     }
   };
 
   if (authStore.isAuthenticated || loginSuccess) {
-    return <Redirect href="/(app)/(tabs)" />;
+    return (
+      <Redirect
+        href={
+          authStore.isAdmin ? '/(app)/(tabs)/admin' : '/(app)/(tabs)'
+        }
+      />
+    );
   }
 
   const error = localError || authStore.error;

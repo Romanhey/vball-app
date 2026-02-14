@@ -24,7 +24,13 @@ export default observer(function IndexScreen() {
   }
 
   if (authStore.isAuthenticated) {
-    return <Redirect href="/(app)/(tabs)" />;
+    return (
+      <Redirect
+        href={
+          authStore.isAdmin ? '/(app)/(tabs)/admin' : '/(app)/(tabs)'
+        }
+      />
+    );
   }
 
   return <Redirect href="/(auth)/login" />;

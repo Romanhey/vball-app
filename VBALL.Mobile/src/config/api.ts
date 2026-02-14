@@ -37,6 +37,6 @@ const getBaseUrl = (portKey: string, defaultPort: number): string => {
 
 export const API_CONFIG = {
   IDENTITY_API_URL: getBaseUrl('IDENTITY_API_PORT', 5000),
-  SCHEDULE_API_URL: getBaseUrl('SCHEDULE_API_PORT', 5054),
+  SCHEDULE_API_URL: `${getBaseUrl('SCHEDULE_API_PORT', 5054)}/api`,
   NOTIFICATIONS_API_URL: getBaseUrl('NOTIFICATIONS_API_PORT', 8080),
 };
