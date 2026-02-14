@@ -19,16 +19,15 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(
-                "http://localhost",
-                "https://localhost",
-                "http://localhost:80",
-                "https://localhost:80",
-                "http://127.0.0.1",
-                "http://127.0.0.1:3000",
-                "http://localhost:3000",
-                "https://localhost:3000"
-            )
+        policy.SetIsOriginAllowed(origin =>
+            {
+                if (string.IsNullOrEmpty(origin)) return true; // Native apps (no Origin header)
+                if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri) || !uri.IsAbsoluteUri) return false;
+                var host = uri.Host;
+                return host == "localhost" || host == "127.0.0.1"
+                    || host.StartsWith("192.168.") || host.StartsWith("10.")
+                    || (host.StartsWith("172.") && IsPrivateClassB(host));
+            })
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
@@ -80,5 +79,13 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+static bool IsPrivateClassB(string host)
+{
+    if (!host.StartsWith("172.")) return false;
+    var parts = host.Split('.');
+    if (parts.Length < 2 || !int.TryParse(parts[1], out var second)) return false;
+    return second >= 16 && second <= 31;
+}
 
 public partial class Program { }

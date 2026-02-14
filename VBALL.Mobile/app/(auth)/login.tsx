@@ -8,7 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, Redirect } from 'expo-router';
 import { observer } from 'mobx-react-lite';
 import { useAuthStore } from '../../src/stores/rootStore';
 import { VBALL_COLORS } from '../../src/constants/theme';
@@ -19,6 +19,7 @@ export default observer(function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
+  const [loginSuccess, setLoginSuccess] = useState(false);
 
   const validate = (): boolean => {
     setLocalError(null);
@@ -45,11 +46,16 @@ export default observer(function LoginScreen() {
     if (!validate()) return;
     try {
       await authStore.login(email, password);
+      setLoginSuccess(true);
       router.replace('/(app)/(tabs)');
     } catch {
       setLocalError(authStore.error || 'Ошибка входа');
     }
   };
+
+  if (authStore.isAuthenticated || loginSuccess) {
+    return <Redirect href="/(app)/(tabs)" />;
+  }
 
   const error = localError || authStore.error;
 

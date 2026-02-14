@@ -10,11 +10,17 @@ services:
       POSTGRES_PASSWORD: "123"
       POSTGRES_DB: schedule_db
     volumes:
-      - postgres_data:/var/lib/postgresql/
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
       - vball
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres21 -d schedule_db"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   identity:
     container_name: vball-identity

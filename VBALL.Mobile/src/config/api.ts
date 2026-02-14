@@ -6,14 +6,33 @@ const getPort = (key: string, defaultPort: number): number => {
   return extra?.[key] ?? defaultPort;
 };
 
+/** Resolve API host for dev: web/localhost, Android emulator/10.0.2.2, real device/LAN IP */
+const getDevHost = (): string => {
+  const extra = Constants.expoConfig?.extra as Record<string, string | number> | undefined;
+  const configHost = extra?.API_HOST;
+  if (typeof configHost === 'string' && configHost) return configHost;
+
+  if (Platform.OS === 'web') return 'localhost';
+
+  const hostUri = Constants.expoConfig?.hostUri;
+  if (hostUri) {
+    const match = hostUri.match(/^(?:exp|http):\/\/([^:/]+)/);
+    const host = match?.[1];
+    if (host && (host.startsWith('192.168.') || host.startsWith('10.') || host === 'localhost')) {
+      return host;
+    }
+  }
+
+  if (Platform.OS === 'android') {
+    return '10.0.2.2';
+  }
+  return '192.168.10.103';
+};
+
 const getBaseUrl = (portKey: string, defaultPort: number): string => {
   const port = getPort(portKey, defaultPort);
-  if (__DEV__) {
-    return Platform.OS === 'android'
-      ? `http://10.0.2.2:${port}`
-      : `http://localhost:${port}`;
-  }
-  return `http://localhost:${port}`;
+  const host = __DEV__ ? getDevHost() : '192.168.10.103';
+  return `http://${host}:${port}`;
 };
 
 export const API_CONFIG = {
