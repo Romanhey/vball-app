@@ -12,7 +12,7 @@ const getDevHost = (): string => {
   const configHost = extra?.API_HOST;
   if (typeof configHost === 'string' && configHost) return configHost;
 
-  if (Platform.OS === 'web') return 'localhost';
+  if (Platform.OS === 'web') return '192.168.10.113';
 
   const hostUri = Constants.expoConfig?.hostUri;
   if (hostUri) {
@@ -26,12 +26,12 @@ const getDevHost = (): string => {
   if (Platform.OS === 'android') {
     return '10.0.2.2';
   }
-  return '192.168.10.103';
+  return '192.168.1.103';
 };
 
 const getBaseUrl = (portKey: string, defaultPort: number): string => {
   const port = getPort(portKey, defaultPort);
-  const host = __DEV__ ? getDevHost() : '192.168.10.103';
+  const host = __DEV__ ? getDevHost() : '192.168.1.103';
   return `http://${host}:${port}`;
 };
 
