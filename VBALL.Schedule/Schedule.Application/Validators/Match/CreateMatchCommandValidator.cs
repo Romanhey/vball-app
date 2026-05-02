@@ -1,5 +1,6 @@
 using FluentValidation;
 using Schedule.Application.UseCases.Match;
+using Schedule.Domain.Entities;
 using Schedule.Domain.IRepositories;
 
 namespace Schedule.Application.Validators.Match;
@@ -11,6 +12,10 @@ public class CreateMatchCommandValidator : AbstractValidator<CreateMatchCommand>
     public CreateMatchCommandValidator(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
+
+        RuleFor(x => x.MatchDTO.MatchStatus)
+            .Must(s => s == MatchStatus.Scheduled)
+            .WithMessage("Match can only be created with 'Scheduled' status.");
 
         RuleFor(x => x.MatchDTO.TeamAId)
             .GreaterThan(0)

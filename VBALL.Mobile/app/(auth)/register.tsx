@@ -85,7 +85,7 @@ export default observer(function RegisterScreen() {
           <TextInput
             style={styles.input}
             placeholder="Email"
-            placeholderTextColor={VBALL_COLORS.textMuted}
+            placeholderTextColor={VBALL_COLORS.placeholder}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -97,7 +97,7 @@ export default observer(function RegisterScreen() {
           <TextInput
             style={styles.input}
             placeholder="Имя"
-            placeholderTextColor={VBALL_COLORS.textMuted}
+            placeholderTextColor={VBALL_COLORS.placeholder}
             value={name}
             onChangeText={setName}
             editable={!authStore.isLoading}
@@ -106,7 +106,7 @@ export default observer(function RegisterScreen() {
           <TextInput
             style={styles.input}
             placeholder="Пароль"
-            placeholderTextColor={VBALL_COLORS.textMuted}
+            placeholderTextColor={VBALL_COLORS.placeholder}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -116,7 +116,7 @@ export default observer(function RegisterScreen() {
           <TextInput
             style={styles.input}
             placeholder="Повторите пароль"
-            placeholderTextColor={VBALL_COLORS.textMuted}
+            placeholderTextColor={VBALL_COLORS.placeholder}
             value={passwordRepeat}
             onChangeText={setPasswordRepeat}
             secureTextEntry

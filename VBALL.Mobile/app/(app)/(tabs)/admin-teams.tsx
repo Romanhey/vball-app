@@ -124,7 +124,7 @@ export default function AdminTeamsScreen() {
     <>
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>Команды</Text>
+          <Text style={styles.headerTitle}>Управление командами</Text>
           <Text style={styles.headerSubtitle}>
             Создавайте и редактируйте составы
           </Text>
@@ -287,13 +287,10 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
     backgroundColor: VBALL_COLORS.background,
-  },
-  headerBtn: {
-    padding: 8,
   },
   headerCenter: {
     alignItems: 'center',
@@ -307,9 +304,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: VBALL_COLORS.textMuted,
     marginTop: 4,
-  },
-  headerSpacer: {
-    width: 40,
   },
   scroll: {
     flex: 1,

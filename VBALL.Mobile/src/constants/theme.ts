@@ -15,4 +15,5 @@ export const VBALL_COLORS = {
   warningBg: '#FFF3CD',
   dangerBg: '#FDE7E9',
   white: '#FFFFFF',
+  placeholder: '#9E99A8',
 };

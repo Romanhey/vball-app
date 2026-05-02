@@ -64,22 +64,22 @@ export const MatchCard: React.FC<MatchCardProps> = ({
         disabled && styles.cardDisabled,
       ]}
     >
-      {statusBadge && (
-        <View
-          style={[
-            styles.badge,
-            { backgroundColor: toneStyle.bg },
-          ]}
-        >
-          <Text style={[styles.badgeText, { color: toneStyle.text }]}>
-            {statusBadge}
-          </Text>
-        </View>
-      )}
       <Pressable
         style={styles.body}
         onPress={() => !disabled && onClick(match.matchId)}
       >
+        {statusBadge && (
+          <View
+            style={[
+              styles.badge,
+              { backgroundColor: toneStyle.bg },
+            ]}
+          >
+            <Text style={[styles.badgeText, { color: toneStyle.text }]}>
+              {statusBadge}
+            </Text>
+          </View>
+        )}
         <View style={styles.header}>
           <Text style={styles.title} numberOfLines={2}>
             {displayTitle}
@@ -135,9 +135,8 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   badge: {
-    position: 'absolute',
-    right: 12,
-    top: 8,
+    alignSelf: 'flex-start',
+    marginBottom: 4,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 999,

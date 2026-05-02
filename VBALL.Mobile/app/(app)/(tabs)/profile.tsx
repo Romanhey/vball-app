@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { MatchStatus, ParticipationStatus } from '../../../src/types';
 import { useAppData } from '../../../src/contexts/AppDataContext';
 import { useAuthStore } from '../../../src/stores/rootStore';
@@ -28,8 +28,14 @@ export default function ProfileScreen() {
   const router = useRouter();
   const authStore = useAuthStore();
   const insets = useSafeAreaInsets();
-  const { profile, participations, matches, teams } = useAppData();
+  const { profile, participations, matches, teams, loadAllData } = useAppData();
   const [activeTab, setActiveTab] = useState<'DETAILS' | 'HISTORY'>('DETAILS');
+
+  useFocusEffect(
+    useCallback(() => {
+      loadAllData();
+    }, [])
+  );
 
   const matchById = useMemo(() => {
     const map = new Map<number, (typeof matches)[0]>();

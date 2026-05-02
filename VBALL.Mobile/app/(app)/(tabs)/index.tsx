@@ -6,13 +6,14 @@ import {
   StyleSheet,
   ScrollView,
   RefreshControl,
+  Modal,
+  Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import type {
   Match,
-  FilterFormat,
-  FilterStage,
   DayGroup,
   Participation,
 } from '../../../src/types';
@@ -20,10 +21,7 @@ import { ParticipationStatus } from '../../../src/types';
 import { useAppData } from '../../../src/contexts/AppDataContext';
 import { useAuthStore } from '../../../src/stores/rootStore';
 import { participationService } from '../../../src/services/participationService';
-import { MenuIcon } from '../../../src/components/Icon';
-import { FilterChip } from '../../../src/components/FilterChip';
 import { MatchCard } from '../../../src/components/MatchCard';
-import { SideMenu } from '../../../src/components/SideMenu';
 import { VBALL_COLORS } from '../../../src/constants/theme';
 
 const participationStatusMeta: Record<
@@ -39,13 +37,6 @@ const participationStatusMeta: Record<
   [ParticipationStatus.Cancelled]: { label: 'Отменено', tone: 'danger' },
 };
 
-type MenuPage =
-  | 'HOME'
-  | 'NOTIFICATIONS'
-  | 'PROFILE'
-  | 'ADMIN'
-  | 'ADMIN_TEAMS';
-
 export default function HomeScreen() {
   const router = useRouter();
   const authStore = useAuthStore();
@@ -53,22 +44,23 @@ export default function HomeScreen() {
   const {
     matches,
     teams,
-    notifications,
     participations,
     loading,
     loadAllData,
     refreshParticipations,
   } = useAppData();
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activePage, setActivePage] = useState<MenuPage>('HOME');
   const [selectedMatchIds, setSelectedMatchIds] = useState<Set<number>>(new Set());
-  const [formatFilter, setFormatFilter] = useState<FilterFormat | 'All'>('All');
-  const [stageFilter, setStageFilter] = useState<FilterStage | 'All'>('All');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [feedbackTone, setFeedbackTone] = useState<'success' | 'danger'>('success');
   const [refreshing, setRefreshing] = useState(false);
+  const [dateFrom, setDateFrom] = useState<Date | null>(null);
+  const [dateTo, setDateTo] = useState<Date | null>(null);
+  const [showDateFromPicker, setShowDateFromPicker] = useState(false);
+  const [showDateToPicker, setShowDateToPicker] = useState(false);
+  const [filterTeamId, setFilterTeamId] = useState<number | null>(null);
+  const [teamPickerOpen, setTeamPickerOpen] = useState(false);
 
   const participationsByMatch = useMemo(() => {
     const map = new Map<number, Participation>();
@@ -103,11 +95,17 @@ export default function HomeScreen() {
 
   const filteredMatches = useMemo(() => {
     return matches.filter((m) => {
-      if (formatFilter !== 'All' && m.format !== formatFilter) return false;
-      if (stageFilter !== 'All' && m.stage !== stageFilter) return false;
+      const startTime = m.startTime instanceof Date ? m.startTime : new Date(m.startTime);
+      if (dateFrom && startTime < dateFrom) return false;
+      if (dateTo) {
+        const endOfDay = new Date(dateTo);
+        endOfDay.setHours(23, 59, 59, 999);
+        if (startTime > endOfDay) return false;
+      }
+      if (filterTeamId && m.teamAId !== filterTeamId && m.teamBId !== filterTeamId) return false;
       return true;
     });
-  }, [matches, formatFilter, stageFilter]);
+  }, [matches, dateFrom, dateTo, filterTeamId]);
 
   const groupedMatches: DayGroup[] = useMemo(() => {
     const groups: Record<string, Match[]> = {};
@@ -170,22 +168,11 @@ export default function HomeScreen() {
     }
   };
 
-  const handleNavigate = (page: MenuPage) => {
-    setIsMenuOpen(false);
-    if (page === 'NOTIFICATIONS') router.push('/(app)/(tabs)/notifications');
-    else if (page === 'PROFILE') router.push('/(app)/(tabs)/profile');
-    else if (page === 'ADMIN') router.push('/(app)/admin');
-    else if (page === 'ADMIN_TEAMS') router.push('/(app)/admin/teams');
-    else setActivePage('HOME');
-  };
-
   const onRefresh = async () => {
     setRefreshing(true);
     await loadAllData();
     setRefreshing(false);
   };
-
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   if (loading) {
     return (
@@ -198,16 +185,7 @@ export default function HomeScreen() {
   return (
     <>
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <Pressable onPress={() => setIsMenuOpen(true)} style={styles.headerBtn}>
-          <MenuIcon />
-        </Pressable>
         <Text style={styles.headerTitle}>VBall</Text>
-        <Pressable
-          onPress={() => handleNavigate('NOTIFICATIONS')}
-          style={styles.headerBtn}
-        >
-          <Text style={styles.headerIcon}>🔔</Text>
-        </Pressable>
       </View>
 
       <ScrollView
@@ -223,55 +201,101 @@ export default function HomeScreen() {
       >
         <View style={styles.filters}>
           <Text style={styles.sectionTitle}>Расписание игр</Text>
+
           <View style={styles.filterRow}>
-            <FilterChip
-              label="4×4"
-              isActive={formatFilter === '4x4'}
-              onClick={() =>
-                setFormatFilter(formatFilter === '4x4' ? 'All' : '4x4')
-              }
-            />
-            <FilterChip
-              label="Классика"
-              isActive={formatFilter === 'Classic'}
-              onClick={() =>
-                setFormatFilter(formatFilter === 'Classic' ? 'All' : 'Classic')
-              }
-              onClear={
-                formatFilter === 'Classic'
-                  ? () => setFormatFilter('All')
-                  : undefined
-              }
-            />
+            <Pressable
+              style={styles.dateFilterBtn}
+              onPress={() => setShowDateFromPicker(true)}
+            >
+              <Text style={styles.dateFilterLabel}>От</Text>
+              <Text style={styles.dateFilterValue}>
+                {dateFrom ? dateFrom.toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' }) : 'Любая'}
+              </Text>
+            </Pressable>
+            <Pressable
+              style={styles.dateFilterBtn}
+              onPress={() => setShowDateToPicker(true)}
+            >
+              <Text style={styles.dateFilterLabel}>До</Text>
+              <Text style={styles.dateFilterValue}>
+                {dateTo ? dateTo.toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' }) : 'Любая'}
+              </Text>
+            </Pressable>
+            {(dateFrom || dateTo) && (
+              <Pressable onPress={() => { setDateFrom(null); setDateTo(null); }} style={styles.clearBtn}>
+                <Text style={styles.clearBtnText}>✕</Text>
+              </Pressable>
+            )}
           </View>
+
           <View style={styles.filterRow}>
-            <FilterChip
-              label="Матч в группе"
-              isActive={stageFilter === 'Group'}
-              onClick={() =>
-                setStageFilter(stageFilter === 'Group' ? 'All' : 'Group')
-              }
-            />
-            <FilterChip
-              label="Финал"
-              isActive={stageFilter === 'Final'}
-              onClick={() =>
-                setStageFilter(stageFilter === 'Final' ? 'All' : 'Final')
-              }
-              onClear={
-                stageFilter === 'Final' ? () => setStageFilter('All') : undefined
-              }
-            />
-            <FilterChip
-              label="Матч звезд"
-              isActive={stageFilter === 'StarMatch'}
-              onClick={() =>
-                setStageFilter(
-                  stageFilter === 'StarMatch' ? 'All' : 'StarMatch'
-                )
-              }
-            />
+            <Pressable
+              style={[styles.dateFilterBtn, { flex: 1 }]}
+              onPress={() => setTeamPickerOpen(true)}
+            >
+              <Text style={styles.dateFilterLabel}>Команда</Text>
+              <Text style={styles.dateFilterValue}>
+                {filterTeamId ? (teams[filterTeamId]?.name ?? `Team ${filterTeamId}`) : 'Все команды'}
+              </Text>
+            </Pressable>
+            {filterTeamId && (
+              <Pressable onPress={() => setFilterTeamId(null)} style={styles.clearBtn}>
+                <Text style={styles.clearBtnText}>✕</Text>
+              </Pressable>
+            )}
           </View>
+
+          {showDateFromPicker && (
+            <DateTimePicker
+              value={dateFrom ?? new Date()}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={(_, date) => {
+                setShowDateFromPicker(false);
+                if (date) setDateFrom(date);
+              }}
+            />
+          )}
+          {showDateToPicker && (
+            <DateTimePicker
+              value={dateTo ?? new Date()}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={(_, date) => {
+                setShowDateToPicker(false);
+                if (date) setDateTo(date);
+              }}
+            />
+          )}
+
+          <Modal
+            visible={teamPickerOpen}
+            transparent
+            animationType="fade"
+            onRequestClose={() => setTeamPickerOpen(false)}
+          >
+            <Pressable style={styles.modalOverlay} onPress={() => setTeamPickerOpen(false)}>
+              <Pressable onPress={(e) => e.stopPropagation()} style={styles.pickerModal}>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  <Pressable
+                    style={styles.pickerOption}
+                    onPress={() => { setFilterTeamId(null); setTeamPickerOpen(false); }}
+                  >
+                    <Text style={styles.pickerOptionText}>Все команды</Text>
+                  </Pressable>
+                  {Object.values(teams).map((team) => (
+                    <Pressable
+                      key={team.teamId}
+                      style={styles.pickerOption}
+                      onPress={() => { setFilterTeamId(team.teamId); setTeamPickerOpen(false); }}
+                    >
+                      <Text style={styles.pickerOptionText}>{team.name}</Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </Pressable>
+            </Pressable>
+          </Modal>
         </View>
 
         <View style={styles.matches}>
@@ -387,18 +411,6 @@ export default function HomeScreen() {
         </Pressable>
       </View>
 
-      <SideMenu
-        isOpen={isMenuOpen}
-        onClose={() => setIsMenuOpen(false)}
-        onNavigate={handleNavigate}
-        activePage={activePage}
-        unreadCount={unreadCount}
-        showAdminLink={authStore.isAdmin}
-        onLogout={async () => {
-          await authStore.logout();
-          router.replace('/(auth)/login');
-        }}
-      />
     </>
   );
 }
@@ -422,16 +434,10 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     backgroundColor: VBALL_COLORS.background,
   },
-  headerBtn: {
-    padding: 8,
-  },
   headerTitle: {
     fontSize: 24,
     fontWeight: '400',
     color: VBALL_COLORS.text,
-  },
-  headerIcon: {
-    fontSize: 20,
   },
   scroll: {
     flex: 1,
@@ -452,10 +458,70 @@ const styles = StyleSheet.create({
   },
   filterRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: 8,
-    justifyContent: 'center',
     marginBottom: 12,
+    alignItems: 'center',
+  },
+  dateFilterBtn: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: VBALL_COLORS.border,
+    borderRadius: 12,
+    padding: 10,
+  },
+  dateFilterLabel: {
+    fontSize: 11,
+    color: VBALL_COLORS.textMuted,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  dateFilterValue: {
+    fontSize: 14,
+    color: VBALL_COLORS.text,
+    marginTop: 2,
+  },
+  clearBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: VBALL_COLORS.chipActive,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  clearBtnText: {
+    fontSize: 14,
+    color: VBALL_COLORS.textMuted,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  pickerModal: {
+    backgroundColor: VBALL_COLORS.white,
+    borderRadius: 16,
+    padding: 8,
+    maxHeight: 300,
+    width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: '#000',
+  },
+  pickerOption: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: `${VBALL_COLORS.border}30`,
+  },
+  pickerOptionText: {
+    fontSize: 16,
+    color: VBALL_COLORS.text,
   },
   matches: {
     flex: 1,
@@ -574,6 +640,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: VBALL_COLORS.primary,
+    paddingHorizontal: 4,
   },
   badgeText: {
     color: VBALL_COLORS.white,

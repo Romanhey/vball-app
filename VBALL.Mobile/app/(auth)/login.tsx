@@ -7,6 +7,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, Redirect } from 'expo-router';
@@ -72,15 +73,16 @@ export default observer(function LoginScreen() {
   return (
     <KeyboardAvoidingView
       style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
       <View style={styles.card}>
         <Text style={styles.title}>Вход</Text>
 
         <TextInput
           style={styles.input}
           placeholder="your@email.com"
-          placeholderTextColor={VBALL_COLORS.textMuted}
+          placeholderTextColor={VBALL_COLORS.placeholder}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -92,7 +94,7 @@ export default observer(function LoginScreen() {
         <TextInput
           style={styles.input}
           placeholder="••••••••"
-          placeholderTextColor={VBALL_COLORS.textMuted}
+          placeholderTextColor={VBALL_COLORS.placeholder}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -122,6 +124,7 @@ export default observer(function LoginScreen() {
           <Text style={styles.linkText}>Нет аккаунта? Зарегистрироваться</Text>
         </Pressable>
       </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 });
@@ -130,9 +133,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: VBALL_COLORS.background,
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
+    paddingVertical: 32,
   },
   card: {
     width: '100%',

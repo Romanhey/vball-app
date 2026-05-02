@@ -65,13 +65,19 @@ function TabLayoutContent() {
             ),
           }}
         />
+        <Tabs.Screen
+          name="admin-teams"
+          options={{
+            href: null,
+          }}
+        />
       </Tabs>
 
       <BottomAdminPanel
         isOpen={isOpen}
         onClose={close}
         onNavigateToMatches={() => router.push('/(app)/(tabs)/admin')}
-        onNavigateToTeams={() => router.push('/(app)/admin/teams')}
+        onNavigateToTeams={() => router.push('/(app)/(tabs)/admin-teams')}
       />
     </>
   );

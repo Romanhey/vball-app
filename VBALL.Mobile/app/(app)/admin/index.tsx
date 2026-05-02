@@ -18,8 +18,6 @@ import {
   MatchStatus,
   ParticipationStatus,
 } from '../../../src/types';
-import { MenuIcon } from '../../../src/components/Icon';
-import { SideMenu } from '../../../src/components/SideMenu';
 import { useAppData } from '../../../src/contexts/AppDataContext';
 import { useAuthStore } from '../../../src/stores/rootStore';
 import { matchService } from '../../../src/services/matchService';
@@ -111,7 +109,6 @@ export default function AdminScreen() {
   const { matches, teams, loadAllData, loading } = useAppData();
   const teamValues = useMemo(() => Object.values(teams), [teams]);
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
   const [participants, setParticipants] = useState<Participation[]>([]);
   const [playerNames, setPlayerNames] = useState<Record<number, string>>({});
@@ -145,6 +142,12 @@ export default function AdminScreen() {
     [matches, selectedMatchId]
   );
 
+  const sortedMatches = useMemo(() => [...matches].sort((a, b) => {
+    const ta = a.startTime instanceof Date ? a.startTime : new Date(a.startTime);
+    const tb = b.startTime instanceof Date ? b.startTime : new Date(b.startTime);
+    return ta.getTime() - tb.getTime();
+  }), [matches]);
+
   useEffect(() => {
     if (!matches.length) {
       setSelectedMatchId(null);
@@ -154,7 +157,17 @@ export default function AdminScreen() {
       !selectedMatchId ||
       !matches.some((m) => m.matchId === selectedMatchId)
     ) {
-      setSelectedMatchId(matches[0].matchId);
+      const now = new Date();
+      const sorted = [...matches].sort((a, b) => {
+        const ta = a.startTime instanceof Date ? a.startTime : new Date(a.startTime);
+        const tb = b.startTime instanceof Date ? b.startTime : new Date(b.startTime);
+        return ta.getTime() - tb.getTime();
+      });
+      const nearest = sorted.find((m) => {
+        const t = m.startTime instanceof Date ? m.startTime : new Date(m.startTime);
+        return t >= now;
+      }) ?? sorted[0];
+      if (nearest) setSelectedMatchId(nearest.matchId);
     }
   }, [matches, selectedMatchId]);
 
@@ -382,21 +395,6 @@ export default function AdminScreen() {
     }
   };
 
-  const handleNavigate = (page: string) => {
-    setIsMenuOpen(false);
-    if (page === 'ADMIN') {
-      router.push('/(app)/admin');
-    } else if (page === 'ADMIN_TEAMS') {
-      router.push('/(app)/admin/teams');
-    } else if (page === 'HOME') {
-      router.push('/(app)/(tabs)');
-    } else if (page === 'NOTIFICATIONS') {
-      router.push('/(app)/(tabs)/notifications');
-    } else if (page === 'PROFILE') {
-      router.push('/(app)/(tabs)/profile');
-    }
-  };
-
   const getBadgeStyle = (tone: string) => {
     switch (tone) {
       case 'success':
@@ -422,11 +420,7 @@ export default function AdminScreen() {
   return (
     <>
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <Pressable onPress={() => setIsMenuOpen(true)} style={styles.headerBtn}>
-          <MenuIcon />
-        </Pressable>
         <Text style={styles.headerTitle}>Панель администратора</Text>
-        <View style={styles.headerSpacer} />
       </View>
 
       <ScrollView
@@ -472,7 +466,7 @@ export default function AdminScreen() {
             </Pressable>
           </View>
 
-          {matches.map((match) => {
+          {sortedMatches.map((match) => {
             const start =
               match.startTime instanceof Date
                 ? match.startTime
@@ -567,7 +561,7 @@ export default function AdminScreen() {
             >
               <Pressable onPress={(e) => e.stopPropagation()} style={styles.pickerModal}>
                 <ScrollView showsVerticalScrollIndicator={false}>
-                  {matches.map((match) => {
+                  {sortedMatches.map((match) => {
                     const start =
                       match.startTime instanceof Date
                         ? match.startTime
@@ -617,7 +611,7 @@ export default function AdminScreen() {
             <TextInput
               style={styles.playerIdInput}
               placeholder="ID игрока"
-              placeholderTextColor={VBALL_COLORS.textMuted}
+              placeholderTextColor={VBALL_COLORS.placeholder}
               value={playerIdToAdd}
               onChangeText={setPlayerIdToAdd}
               keyboardType="number-pad"
@@ -801,8 +795,8 @@ export default function AdminScreen() {
         animationType="slide"
         onRequestClose={() => setIsFormOpen(false)}
       >
-        <View style={styles.formModalOverlay}>
-          <View style={[styles.formModal, { paddingBottom: insets.bottom + 24 }]}>
+        <Pressable style={styles.formModalOverlay} onPress={() => setIsFormOpen(false)}>
+          <Pressable onPress={(e) => e.stopPropagation()} style={[styles.formModal, { paddingBottom: insets.bottom + 24 }]}>
             <Text style={styles.formTitle}>
               {editingMatch ? 'Редактировать матч' : 'Создать матч'}
             </Text>
@@ -929,45 +923,47 @@ export default function AdminScreen() {
               </Pressable>
             </Modal>
 
-            <View style={styles.formField}>
-              <Text style={styles.formLabel}>Статус</Text>
-              <View style={styles.statusPicker}>
-                {matchStatusOptions.map((opt) => (
-                  <Pressable
-                    key={opt.value}
-                    onPress={() =>
-                      setFormState((prev) => ({
-                        ...prev,
-                        status: opt.value,
-                      }))
-                    }
-                    style={[
-                      styles.statusOption,
-                      formState.status === opt.value &&
-                        styles.statusOptionSelected,
-                    ]}
-                  >
-                    <Text
+            {editingMatch && (
+              <View style={styles.formField}>
+                <Text style={styles.formLabel}>Статус</Text>
+                <View style={styles.statusPicker}>
+                  {matchStatusOptions.map((opt) => (
+                    <Pressable
+                      key={opt.value}
+                      onPress={() =>
+                        setFormState((prev) => ({
+                          ...prev,
+                          status: opt.value,
+                        }))
+                      }
                       style={[
-                        styles.statusOptionText,
+                        styles.statusOption,
                         formState.status === opt.value &&
-                          styles.statusOptionTextSelected,
+                          styles.statusOptionSelected,
                       ]}
                     >
-                      {opt.label}
-                    </Text>
-                  </Pressable>
-                ))}
+                      <Text
+                        style={[
+                          styles.statusOptionText,
+                          formState.status === opt.value &&
+                            styles.statusOptionTextSelected,
+                        ]}
+                      >
+                        {opt.label}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
               </View>
-            </View>
+            )}
 
-            {formState.status === MatchStatus.Finished && (
+            {editingMatch && formState.status === MatchStatus.Finished && (
               <View style={styles.formField}>
                 <Text style={styles.formLabel}>Итоговый счет</Text>
                 <TextInput
                   style={styles.formInput}
                   placeholder="3:1"
-                  placeholderTextColor={VBALL_COLORS.textMuted}
+                  placeholderTextColor={VBALL_COLORS.placeholder}
                   value={formState.finalScore}
                   onChangeText={(t) =>
                     setFormState((prev) => ({ ...prev, finalScore: t }))
@@ -1002,22 +998,9 @@ export default function AdminScreen() {
                 </Text>
               </Pressable>
             </View>
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
-
-      <SideMenu
-        isOpen={isMenuOpen}
-        onClose={() => setIsMenuOpen(false)}
-        onNavigate={handleNavigate}
-        activePage="ADMIN"
-        unreadCount={0}
-        showAdminLink={authStore.isAdmin}
-        onLogout={async () => {
-          await authStore.logout();
-          router.replace('/(auth)/login');
-        }}
-      />
     </>
   );
 }
@@ -1037,21 +1020,15 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
     backgroundColor: VBALL_COLORS.background,
-  },
-  headerBtn: {
-    padding: 8,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
     color: VBALL_COLORS.text,
-  },
-  headerSpacer: {
-    width: 40,
   },
   scroll: {
     flex: 1,
