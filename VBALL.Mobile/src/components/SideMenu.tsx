@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    backgroundColor: 'transparent',
   },
   drawer: {
     width: DRAWER_WIDTH,
@@ -144,6 +144,8 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
     flex: 1,
+    borderRightWidth: 1,
+    borderColor: '#000',
   },
   header: {
     flexDirection: 'row',

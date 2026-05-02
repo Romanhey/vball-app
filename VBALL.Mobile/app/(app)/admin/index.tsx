@@ -135,6 +135,7 @@ export default function AdminScreen() {
   const [messageTone, setMessageTone] = useState<'success' | 'danger'>(
     'success'
   );
+  const [formError, setFormError] = useState<string | null>(null);
   const [matchPickerOpen, setMatchPickerOpen] = useState(false);
   const [teamAPickerOpen, setTeamAPickerOpen] = useState(false);
   const [teamBPickerOpen, setTeamBPickerOpen] = useState(false);
@@ -215,6 +216,7 @@ export default function AdminScreen() {
       status: MatchStatus.Scheduled,
       finalScore: '',
     });
+    setFormError(null);
     setIsFormOpen(true);
   };
 
@@ -231,13 +233,13 @@ export default function AdminScreen() {
       status: match.status,
       finalScore: match.finalScore ?? '',
     });
+    setFormError(null);
     setIsFormOpen(true);
   };
 
   const handleMatchFormSubmit = async () => {
     if (!formState.teamAId || !formState.teamBId) {
-      setMessageTone('danger');
-      setMessage('Заполните дату и команды');
+      setFormError('Заполните дату и команды');
       return;
     }
 
@@ -272,9 +274,7 @@ export default function AdminScreen() {
         error,
         'Ошибка при сохранении матча'
       );
-      setMessageTone('danger');
-      setMessage(errorMessage);
-      setTimeout(() => setMessage(null), 5000);
+      setFormError(errorMessage);
     } finally {
       setFormSubmitting(false);
     }
@@ -565,35 +565,37 @@ export default function AdminScreen() {
               style={styles.modalOverlay}
               onPress={() => setMatchPickerOpen(false)}
             >
-              <View style={styles.pickerModal}>
-                {matches.map((match) => {
-                  const start =
-                    match.startTime instanceof Date
-                      ? match.startTime
-                      : new Date(match.startTime);
-                  return (
-                    <Pressable
-                      key={match.matchId}
-                      onPress={() => {
-                        setSelectedMatchId(match.matchId);
-                        setMatchPickerOpen(false);
-                      }}
-                      style={styles.pickerOption}
-                    >
-                      <Text style={styles.pickerOptionText}>
-                        {start.toLocaleDateString('ru-RU', {
-                          day: '2-digit',
-                          month: 'short',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}{' '}
-                        · {teams[match.teamAId]?.name ?? match.teamAId} vs{' '}
-                        {teams[match.teamBId]?.name ?? match.teamBId}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
+              <Pressable onPress={(e) => e.stopPropagation()} style={styles.pickerModal}>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  {matches.map((match) => {
+                    const start =
+                      match.startTime instanceof Date
+                        ? match.startTime
+                        : new Date(match.startTime);
+                    return (
+                      <Pressable
+                        key={match.matchId}
+                        onPress={() => {
+                          setSelectedMatchId(match.matchId);
+                          setMatchPickerOpen(false);
+                        }}
+                        style={styles.pickerOption}
+                      >
+                        <Text style={styles.pickerOptionText}>
+                          {start.toLocaleDateString('ru-RU', {
+                            day: '2-digit',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}{' '}
+                          · {teams[match.teamAId]?.name ?? match.teamAId} vs{' '}
+                          {teams[match.teamBId]?.name ?? match.teamBId}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              </Pressable>
             </Pressable>
           </Modal>
 
@@ -861,23 +863,25 @@ export default function AdminScreen() {
                 style={styles.modalOverlay}
                 onPress={() => setTeamAPickerOpen(false)}
               >
-                <View style={styles.pickerModal}>
-                  {teamValues.map((team) => (
-                    <Pressable
-                      key={team.teamId}
-                      onPress={() => {
-                        setFormState((prev) => ({
-                          ...prev,
-                          teamAId: team.teamId.toString(),
-                        }));
-                        setTeamAPickerOpen(false);
-                      }}
-                      style={styles.pickerOption}
-                    >
-                      <Text style={styles.pickerOptionText}>{team.name}</Text>
-                    </Pressable>
-                  ))}
-                </View>
+                <Pressable onPress={(e) => e.stopPropagation()} style={styles.pickerModal}>
+                  <ScrollView showsVerticalScrollIndicator={false}>
+                    {teamValues.map((team) => (
+                      <Pressable
+                        key={team.teamId}
+                        onPress={() => {
+                          setFormState((prev) => ({
+                            ...prev,
+                            teamAId: team.teamId.toString(),
+                          }));
+                          setTeamAPickerOpen(false);
+                        }}
+                        style={styles.pickerOption}
+                      >
+                        <Text style={styles.pickerOptionText}>{team.name}</Text>
+                      </Pressable>
+                    ))}
+                  </ScrollView>
+                </Pressable>
               </Pressable>
             </Modal>
 
@@ -903,23 +907,25 @@ export default function AdminScreen() {
                 style={styles.modalOverlay}
                 onPress={() => setTeamBPickerOpen(false)}
               >
-                <View style={styles.pickerModal}>
-                  {teamValues.map((team) => (
-                    <Pressable
-                      key={team.teamId}
-                      onPress={() => {
-                        setFormState((prev) => ({
-                          ...prev,
-                          teamBId: team.teamId.toString(),
-                        }));
-                        setTeamBPickerOpen(false);
-                      }}
-                      style={styles.pickerOption}
-                    >
-                      <Text style={styles.pickerOptionText}>{team.name}</Text>
-                    </Pressable>
-                  ))}
-                </View>
+                <Pressable onPress={(e) => e.stopPropagation()} style={styles.pickerModal}>
+                  <ScrollView showsVerticalScrollIndicator={false}>
+                    {teamValues.map((team) => (
+                      <Pressable
+                        key={team.teamId}
+                        onPress={() => {
+                          setFormState((prev) => ({
+                            ...prev,
+                            teamBId: team.teamId.toString(),
+                          }));
+                          setTeamBPickerOpen(false);
+                        }}
+                        style={styles.pickerOption}
+                      >
+                        <Text style={styles.pickerOptionText}>{team.name}</Text>
+                      </Pressable>
+                    ))}
+                  </ScrollView>
+                </Pressable>
               </Pressable>
             </Modal>
 
@@ -967,6 +973,12 @@ export default function AdminScreen() {
                     setFormState((prev) => ({ ...prev, finalScore: t }))
                   }
                 />
+              </View>
+            )}
+
+            {formError && (
+              <View style={[styles.message, styles.messageDanger]}>
+                <Text style={[styles.messageText, styles.messageTextDanger]}>{formError}</Text>
               </View>
             )}
 
@@ -1168,7 +1180,7 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
@@ -1179,6 +1191,13 @@ const styles = StyleSheet.create({
     padding: 8,
     maxHeight: 300,
     width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: '#000',
   },
   pickerOption: {
     padding: 16,
@@ -1335,13 +1354,17 @@ const styles = StyleSheet.create({
   },
   formModalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'transparent',
     justifyContent: 'flex-end',
   },
   formModal: {
     backgroundColor: VBALL_COLORS.white,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: '#000',
     padding: 24,
     maxHeight: '90%',
   },

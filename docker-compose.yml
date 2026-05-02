@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: "123"
       POSTGRES_DB: schedule_db
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     ports:
       - "5432:5432"
     networks:
@@ -26,7 +26,7 @@ services:
     container_name: vball-identity
     build:
       context: ./VBALL.Identity
-      dockerfile: ./Identity.Presentation/Dockerfile
+      dockerfile: ./Dockerfile
     depends_on:
       - postgres
     environment:
@@ -51,7 +51,7 @@ services:
     container_name: vball-schedule
     build:
       context: ./VBALL.Schedule
-      dockerfile: ./Schedule.Presentation/Dockerfile
+      dockerfile: ./Dockerfile
     depends_on:
       - postgres
       - notifications
