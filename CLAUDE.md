@@ -94,3 +94,8 @@ Both services use PostgreSQL. EF Core migrations are applied automatically on st
 - Identity DB: `identity_db`
 - Schedule DB: `schedule_db`
 - Default credentials (dev/docker): `postgres21` / `123`
+
+
+### Service specifiec info
+
+in files `CLAUDE_{service name}.md` you can find more specific information about service

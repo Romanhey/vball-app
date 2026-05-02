@@ -87,13 +87,17 @@ export const BottomAdminPanel: React.FC<BottomAdminPanelProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'transparent',
     justifyContent: 'flex-end',
   },
   panel: {
     backgroundColor: VBALL_COLORS.cardBg,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: '#000',
     paddingHorizontal: 24,
     paddingTop: 12,
     minHeight: PANEL_HEIGHT,
