@@ -1,6 +1,6 @@
 import { Match, Team } from '../types';
 
-const API_BASE_URL = 'http://localhost/api';
+const API_BASE_URL = 'http://localhost:8088/api';
 
 // Helper to convert API response dates to Date objects
 const parseMatch = (match: any): Match => {

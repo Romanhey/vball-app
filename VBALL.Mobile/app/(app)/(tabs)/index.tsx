@@ -83,6 +83,12 @@ export default function HomeScreen() {
     });
   }, [disabledMatches]);
 
+  useEffect(() => {
+    if (!feedback) return;
+    const timer = setTimeout(() => setFeedback(null), 3000);
+    return () => clearTimeout(timer);
+  }, [feedback]);
+
   const handleToggleMatch = (id: number) => {
     if (disabledMatches.has(id)) return;
     setSelectedMatchIds((prev) => {
@@ -368,7 +374,7 @@ export default function HomeScreen() {
         <View style={styles.bottomSpacer} />
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 24 }]}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + 8 }]}>
         {feedback && (
           <View
             style={[

@@ -1,8 +1,8 @@
 // API Configuration
 export const API_CONFIG = {
-  IDENTITY_API_URL: process.env.REACT_APP_IDENTITY_API_URL || 'http://localhost:5000',
-  SCHEDULE_API_URL: process.env.REACT_APP_SCHEDULE_API_URL || 'http://localhost:5054',
-  NOTIFICATIONS_API_URL: process.env.REACT_APP_NOTIFICATIONS_API_URL || 'http://localhost:8080',
+  IDENTITY_API_URL: process.env.REACT_APP_IDENTITY_API_URL || 'http://192.168.1.103:5000/api',
+  SCHEDULE_API_URL: process.env.REACT_APP_SCHEDULE_API_URL || 'http://192.168.1.103:5054/api',
+  NOTIFICATIONS_API_URL: process.env.REACT_APP_NOTIFICATIONS_API_URL || 'http://192.168.1.103:8080',
 };
 
 // For production, these might be proxied through nginx

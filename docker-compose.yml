@@ -111,7 +111,7 @@ services:
       - identity
       - schedule
     ports:
-      - "80:80"
+      - "8088:80"
     volumes:
       - client_static:/usr/share/nginx/html:ro
     networks:

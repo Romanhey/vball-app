@@ -1,9 +1,9 @@
 // Match Status enum matching C# backend
 export enum MatchStatus {
-  Scheduled = 0,
-  InProgress = 1,
-  Finished = 2,
-  Cancelled = 3,
+  Scheduled = 'Scheduled',
+  InProgress = 'InProgress',
+  Finished = 'Finished',
+  Cancelled = 'Cancelled',
 }
 
 // Participation Status enum

@@ -45,7 +45,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 const identityBaseUrl =
   process.env.REACT_APP_IDENTITY_API ?? (isProduction ? '/identity' : 'http://localhost:5000');
 const scheduleBaseUrl =
-  process.env.REACT_APP_SCHEDULE_API ?? (isProduction ? '/schedule' : 'http://localhost:5054');
+  process.env.REACT_APP_SCHEDULE_API ?? (isProduction ? '/schedule' : 'http://localhost:5054/api');
 const notificationsBaseUrl =
   process.env.REACT_APP_NOTIFICATIONS_API ?? 'http://localhost:8080';
 
