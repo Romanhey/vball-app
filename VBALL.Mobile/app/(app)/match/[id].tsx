@@ -150,7 +150,7 @@ export default function MatchDetailsScreen() {
           <Text
             style={[
               styles.statusText,
-              match.status === MatchStatus.InProgress && styles.statusTextWhite,
+              (match.status === MatchStatus.InProgress || match.status === MatchStatus.Scheduled) && styles.statusTextWhite,
             ]}
           >
             {getStatusText(match.status)}

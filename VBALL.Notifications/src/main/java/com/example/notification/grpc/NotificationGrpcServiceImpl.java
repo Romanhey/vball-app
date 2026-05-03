@@ -36,6 +36,7 @@ public class NotificationGrpcServiceImpl extends NotificationGrpcServiceGrpc.Not
 
         try {
             var stored = notificationService.createNotificationFromGrpc(
+                    request.getUserId(),
                     request.getLevel(),
                     request.getContent(),
                     parseDate(request.getDate())
@@ -83,6 +84,7 @@ public class NotificationGrpcServiceImpl extends NotificationGrpcServiceGrpc.Not
 
                 try {
                     notificationService.createNotificationFromGrpc(
+                            request.getUserId(),
                             request.getLevel(),
                             request.getContent(),
                             parseDate(request.getDate())

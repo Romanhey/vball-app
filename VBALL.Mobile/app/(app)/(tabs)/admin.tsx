@@ -9,6 +9,7 @@ import {
   Modal,
   Platform,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, Redirect } from 'expo-router';
@@ -22,6 +23,7 @@ import { participationService } from '../../../src/services/participationService
 import { userService } from '../../../src/services/userService';
 import { VBALL_COLORS } from '../../../src/constants/theme';
 import { getUserFriendlyError } from '../../../src/utils/errorUtils';
+import { TrashIcon } from '../../../src/components/Icon';
 
 const matchStatusOptions: { value: MatchStatus; label: string }[] = [
   { value: MatchStatus.Scheduled, label: 'Запланирован' },
@@ -43,6 +45,16 @@ const participationStatusBadge: Record<
   [ParticipationStatus.Waitlisted]: 'warning',
   [ParticipationStatus.PendingCancellation]: 'warning',
   [ParticipationStatus.Cancelled]: 'danger',
+};
+
+const participationStatusLabel: Record<ParticipationStatus, string> = {
+  [ParticipationStatus.Applied]: 'Заявлен',
+  [ParticipationStatus.Reviewed]: 'Рассмотрен',
+  [ParticipationStatus.Registered]: 'Зарегистрирован',
+  [ParticipationStatus.Confirmed]: 'Подтверждён',
+  [ParticipationStatus.Waitlisted]: 'В очереди',
+  [ParticipationStatus.PendingCancellation]: 'Запрос отмены',
+  [ParticipationStatus.Cancelled]: 'Отменён',
 };
 
 function TeamAssignmentSelector({
@@ -297,6 +309,50 @@ export default function AdminTabScreen() {
     setTeamAssignment((prev) => ({ ...prev, [participationId]: value }));
   };
 
+  const handleDeleteMatch = (matchId: number) => {
+    Alert.alert('Удалить матч', 'Это действие необратимо. Удалить матч?', [
+      { text: 'Отмена', style: 'cancel' },
+      {
+        text: 'Удалить',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await matchService.deleteMatch(matchId);
+            setMessageTone('success');
+            setMessage('Матч удален');
+            if (selectedMatchId === matchId) setSelectedMatchId(null);
+            await loadAllData();
+          } catch (error: unknown) {
+            setMessageTone('danger');
+            setMessage(getUserFriendlyError(error, 'Не удалось удалить матч'));
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleDeleteParticipation = (participationId: number) => {
+    Alert.alert('Удалить игрока', 'Удалить заявку игрока из этого матча?', [
+      { text: 'Отмена', style: 'cancel' },
+      {
+        text: 'Удалить',
+        style: 'destructive',
+        onPress: async () => {
+          if (!selectedMatchId) return;
+          try {
+            await participationService.deleteParticipation(participationId);
+            setMessageTone('success');
+            setMessage('Игрок удален');
+            await fetchParticipantsForMatch(selectedMatchId);
+          } catch (error: unknown) {
+            setMessageTone('danger');
+            setMessage(getUserFriendlyError(error, 'Не удалось удалить игрока'));
+          }
+        },
+      },
+    ]);
+  };
+
   const handleParticipationAction = async (
     participation: Participation,
     action:
@@ -306,6 +362,7 @@ export default function AdminTabScreen() {
       | 'confirm'
       | 'approveCancellation'
       | 'rejectCancellation'
+      | 'sendToReserve'
   ) => {
     if (!selectedMatchId) return;
 
@@ -348,6 +405,12 @@ export default function AdminTabScreen() {
         case 'rejectCancellation':
           await participationService.rejectCancellation(
             participation.participationId
+          );
+          break;
+        case 'sendToReserve':
+          await participationService.updateParticipation(
+            participation.participationId,
+            { status: ParticipationStatus.Registered }
           );
           break;
         default:
@@ -491,17 +554,14 @@ export default function AdminTabScreen() {
                   </View>
                 </View>
                 <View style={styles.matchActions}>
-                  <Pressable
-                    onPress={() => openEditForm(match)}
-                    style={styles.actionBtn}
-                  >
-                    <Text style={styles.actionBtnText}>Редактировать</Text>
+                  <Pressable onPress={() => openEditForm(match)} style={styles.actionBtn}>
+                    <Text style={styles.actionBtnText}>Изменить</Text>
                   </Pressable>
-                  <Pressable
-                    onPress={() => router.push(`/(app)/match/${match.matchId}`)}
-                    style={styles.actionBtn}
-                  >
+                  <Pressable onPress={() => router.push(`/(app)/match/${match.matchId}`)} style={styles.actionBtn}>
                     <Text style={styles.actionBtnText}>Открыть</Text>
+                  </Pressable>
+                  <Pressable onPress={() => handleDeleteMatch(match.matchId)} style={styles.trashBtn} hitSlop={8}>
+                    <TrashIcon size={20} />
                   </Pressable>
                 </View>
               </View>
@@ -638,14 +698,9 @@ export default function AdminTabScreen() {
                       {playerNames[participant.playerId] ??
                         `Игрок #${participant.playerId}`}
                     </Text>
-                    <View
-                      style={[
-                        styles.participantBadge,
-                        getBadgeStyle(badgeTone),
-                      ]}
-                    >
+                    <View style={[styles.participantBadge, getBadgeStyle(badgeTone)]}>
                       <Text style={styles.participantBadgeText}>
-                        {participant.status}
+                        {participationStatusLabel[participant.status]}
                       </Text>
                     </View>
                   </View>
@@ -668,27 +723,19 @@ export default function AdminTabScreen() {
                               teamId
                             )
                           }
-                          disabled={
-                            participant.status ===
-                            ParticipationStatus.Confirmed
-                          }
                         />
-                        {participant.status ===
-                          ParticipationStatus.Registered && (
-                          <Pressable
-                            style={styles.confirmTeamBtn}
-                            onPress={() =>
-                              handleParticipationAction(
-                                participant,
-                                'confirm'
-                              )
-                            }
-                          >
-                            <Text style={styles.confirmTeamBtnText}>
-                              Назначить
-                            </Text>
-                          </Pressable>
-                        )}
+                        <Pressable
+                          style={styles.confirmTeamBtn}
+                          onPress={() =>
+                            handleParticipationAction(participant, 'confirm')
+                          }
+                        >
+                          <Text style={styles.confirmTeamBtnText}>
+                            {participant.status === ParticipationStatus.Confirmed
+                              ? 'Переназначить'
+                              : 'Назначить'}
+                          </Text>
+                        </Pressable>
                       </>
                     ) : participant.teamId ? (
                       <Text style={styles.teamNameText}>
@@ -700,6 +747,13 @@ export default function AdminTabScreen() {
                     )}
                   </View>
                   <View style={styles.participantActions}>
+                    <Pressable
+                      onPress={() => handleDeleteParticipation(participant.participationId)}
+                      style={styles.trashBtn}
+                      hitSlop={8}
+                    >
+                      <TrashIcon size={18} />
+                    </Pressable>
                     {participant.status === ParticipationStatus.Applied && (
                       <Pressable
                         onPress={() =>
@@ -736,6 +790,18 @@ export default function AdminTabScreen() {
                       >
                         <Text style={styles.participantActionText}>
                           В основной состав
+                        </Text>
+                      </Pressable>
+                    )}
+                    {participant.status === ParticipationStatus.Confirmed && (
+                      <Pressable
+                        onPress={() =>
+                          handleParticipationAction(participant, 'sendToReserve')
+                        }
+                        style={styles.participantActionBtn}
+                      >
+                        <Text style={styles.participantActionText}>
+                          В резерв
                         </Text>
                       </Pressable>
                     )}
@@ -1072,6 +1138,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  teamRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: `${VBALL_COLORS.border}30`,
+  },
+  teamRowInfo: { flex: 1 },
+  teamRowName: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: VBALL_COLORS.text,
+  },
+  teamRowRating: {
+    fontSize: 13,
+    color: VBALL_COLORS.textMuted,
+    marginTop: 2,
+  },
   matchRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1104,8 +1189,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: VBALL_COLORS.primary,
   },
-  matchActions: { flexDirection: 'row', gap: 12 },
+  matchActions: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   actionBtn: {},
+  trashBtn: { padding: 4 },
   actionBtnText: {
     fontSize: 14,
     fontWeight: '600',
@@ -1190,6 +1276,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 8,
+  },
+  participantRowRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   participantName: {
     fontSize: 15,

@@ -65,6 +65,7 @@ services:
         Username=postgres21;
         Password=123;
         Include Error Detail=true
+      NotificationGrpc__Address: http://notifications:9090
     ports:
       - "5054:5054"
     networks:

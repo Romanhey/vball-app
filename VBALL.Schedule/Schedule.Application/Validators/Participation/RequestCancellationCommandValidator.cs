@@ -17,10 +17,9 @@ namespace Schedule.Application.Validators.Participation
                 .WithMessage("ParticipationId must be greater than 0");
 
             RuleFor(x => x.Dto.Reason)
-                .NotEmpty()
-                .WithMessage("Cancellation reason is required")
                 .MaximumLength(500)
-                .WithMessage("Cancellation reason must not exceed 500 characters");
+                .WithMessage("Cancellation reason must not exceed 500 characters")
+                .When(x => x.Dto.Reason != null);
         }
     }
 }

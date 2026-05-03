@@ -35,6 +35,14 @@ public class NotificationService {
                 .toList();
     }
 
+    public List<NotificationResponse> getRecentNotificationsForUser(String userId, long days) {
+        LocalDateTime threshold = LocalDateTime.now().minusDays(days);
+        return notificationStore.findByUserIdSince(userId, threshold).stream()
+                .sorted(Comparator.comparing(Notification::getCreatedAt))
+                .map(this::mapToResponse)
+                .toList();
+    }
+
     public NotificationResponse getNotificationById(Long id) {
         Notification notification = notificationStore.findById(id);
         if (notification == null) {
@@ -75,8 +83,9 @@ public class NotificationService {
         }
     }
 
-    public NotificationResponse createNotificationFromGrpc(String level, String content, LocalDateTime date) {
+    public NotificationResponse createNotificationFromGrpc(String userId, String level, String content, LocalDateTime date) {
         Notification notification = new Notification();
+        notification.setUserId(userId);
         notification.setTitle(level != null ? level : "INFO");
         notification.setMessage(content);
         notification.setType(level != null ? level : "INFO");
@@ -88,6 +97,7 @@ public class NotificationService {
     private NotificationResponse mapToResponse(Notification notification) {
         NotificationResponse response = new NotificationResponse();
         response.setId(notification.getId());
+        response.setUserId(notification.getUserId());
         response.setTitle(notification.getTitle());
         response.setMessage(notification.getMessage());
         response.setType(notification.getType());

@@ -7,6 +7,7 @@ import {
   ScrollView,
   TextInput,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -16,6 +17,7 @@ import { useAuthStore } from '../../../src/stores/rootStore';
 import { teamService } from '../../../src/services/teamService';
 import { VBALL_COLORS } from '../../../src/constants/theme';
 import { getUserFriendlyError } from '../../../src/utils/errorUtils';
+import { TrashIcon } from '../../../src/components/Icon';
 
 type MessageTone = 'success' | 'danger';
 
@@ -78,6 +80,25 @@ export default function AdminTeamsScreen() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleDeleteTeam = (teamId: number, teamName: string) => {
+    Alert.alert('Удалить команду', `Удалить команду «${teamName}»?`, [
+      { text: 'Отмена', style: 'cancel' },
+      {
+        text: 'Удалить',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await teamService.deleteTeam(teamId);
+            showFeedback('Команда удалена');
+            await loadAllData();
+          } catch (error: unknown) {
+            showFeedback(getUserFriendlyError(error, 'Не удалось удалить команду'), 'danger');
+          }
+        },
+      },
+    ]);
   };
 
   const handleSaveRating = async (teamId: number) => {
@@ -258,6 +279,13 @@ export default function AdminTeamsScreen() {
                       <Text style={styles.saveBtnText}>
                         {isSaving ? 'Сохраняем...' : 'Сохранить'}
                       </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => handleDeleteTeam(team.teamId, team.name)}
+                      style={styles.deleteBtn}
+                      hitSlop={8}
+                    >
+                      <TrashIcon size={20} />
                     </Pressable>
                   </View>
                 </View>
@@ -470,5 +498,8 @@ const styles = StyleSheet.create({
     color: VBALL_COLORS.white,
     fontSize: 14,
     fontWeight: '600',
+  },
+  deleteBtn: {
+    padding: 4,
   },
 });

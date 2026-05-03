@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public class Notification {
 
     private Long id;
+    private String userId;
     private String title;
     private String message;
     private String type;
@@ -13,20 +14,20 @@ public class Notification {
     public Notification() {
     }
 
-    public Notification(Long id, String title, String message, String type, LocalDateTime createdAt) {
-        this.id = id;
-        this.title = title;
-        this.message = message;
-        this.type = type;
-        this.createdAt = createdAt;
-    }
-
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getTitle() {

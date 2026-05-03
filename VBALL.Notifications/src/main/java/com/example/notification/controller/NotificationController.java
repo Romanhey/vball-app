@@ -26,8 +26,9 @@ public class NotificationController {
     }
 
     @GetMapping("/recent")
-    public ResponseEntity<List<NotificationResponse>> getRecentNotifications() {
-        return ResponseEntity.ok(notificationService.getNotificationsFromLastDays(2));
+    public ResponseEntity<List<NotificationResponse>> getRecentNotifications(
+            @RequestParam String userId) {
+        return ResponseEntity.ok(notificationService.getRecentNotificationsForUser(userId, 30));
     }
 
     @GetMapping("/{id}")

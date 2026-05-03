@@ -2,10 +2,14 @@ using MediatR;
 using Schedule.Application.Exceptions;
 using Schedule.Domain.Entities;
 using Schedule.Domain.IRepositories;
+using Schedule.Domain.Services;
 
 namespace Schedule.Application.UseCases.Participation.RejectCancellation
 {
-    public class RejectCancellationCommandHandler(IUnitOfWork unitOfWork) : IRequestHandler<RejectCancellationCommand>
+    public class RejectCancellationCommandHandler(
+        IUnitOfWork unitOfWork,
+        INotificationService notificationService
+    ) : IRequestHandler<RejectCancellationCommand>
     {
         public async Task Handle(RejectCancellationCommand request, CancellationToken cancellationToken)
         {
@@ -25,6 +29,13 @@ namespace Schedule.Application.UseCases.Participation.RejectCancellation
 
             await unitOfWork.ParticipationRepository.UpdateAsync(participation, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
+
+            await notificationService.SendAsync(
+                userId: participation.PlayerId.ToString(),
+                date: DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"),
+                level: "WARNING",
+                content: $"Ваш запрос на отмену участия в матче #{participation.MatchId} отклонён. Вы остаётесь в составе.",
+                cancellationToken: cancellationToken);
         }
     }
 }

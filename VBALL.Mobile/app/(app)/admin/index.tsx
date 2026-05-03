@@ -9,6 +9,7 @@ import {
   Modal,
   Platform,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -25,6 +26,7 @@ import { participationService } from '../../../src/services/participationService
 import { userService } from '../../../src/services/userService';
 import { VBALL_COLORS } from '../../../src/constants/theme';
 import { getUserFriendlyError } from '../../../src/utils/errorUtils';
+import { TrashIcon } from '../../../src/components/Icon';
 
 const matchStatusOptions: { value: MatchStatus; label: string }[] = [
   { value: MatchStatus.Scheduled, label: 'Запланирован' },
@@ -309,6 +311,7 @@ export default function AdminScreen() {
       | 'confirm'
       | 'approveCancellation'
       | 'rejectCancellation'
+      | 'sendToReserve'
   ) => {
     if (!selectedMatchId) return;
 
@@ -353,6 +356,12 @@ export default function AdminScreen() {
             participation.participationId
           );
           break;
+        case 'sendToReserve':
+          await participationService.updateParticipation(
+            participation.participationId,
+            { status: ParticipationStatus.Registered }
+          );
+          break;
         default:
           break;
       }
@@ -395,6 +404,60 @@ export default function AdminScreen() {
     }
   };
 
+  const handleDeleteMatch = (matchId: number) => {
+    Alert.alert(
+      'Удалить матч',
+      'Это действие необратимо. Удалить матч?',
+      [
+        { text: 'Отмена', style: 'cancel' },
+        {
+          text: 'Удалить',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await matchService.deleteMatch(matchId);
+              setMessageTone('success');
+              setMessage('Матч удален');
+              if (selectedMatchId === matchId) setSelectedMatchId(null);
+              await loadAllData();
+            } catch (error: unknown) {
+              const errorMessage = getUserFriendlyError(error, 'Не удалось удалить матч');
+              setMessageTone('danger');
+              setMessage(errorMessage);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleDeleteParticipation = (participationId: number) => {
+    Alert.alert(
+      'Удалить игрока',
+      'Удалить заявку игрока из этого матча?',
+      [
+        { text: 'Отмена', style: 'cancel' },
+        {
+          text: 'Удалить',
+          style: 'destructive',
+          onPress: async () => {
+            if (!selectedMatchId) return;
+            try {
+              await participationService.deleteParticipation(participationId);
+              setMessageTone('success');
+              setMessage('Игрок удален');
+              await fetchParticipantsForMatch(selectedMatchId);
+            } catch (error: unknown) {
+              const errorMessage = getUserFriendlyError(error, 'Не удалось удалить игрока');
+              setMessageTone('danger');
+              setMessage(errorMessage);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const getBadgeStyle = (tone: string) => {
     switch (tone) {
       case 'success':
@@ -420,7 +483,7 @@ export default function AdminScreen() {
   return (
     <>
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <Text style={styles.headerTitle}>Панель администратора</Text>
+        <Text style={styles.headerTitle}>Панель администратора ✓</Text>
       </View>
 
       <ScrollView
@@ -457,6 +520,7 @@ export default function AdminScreen() {
               <Text style={styles.sectionSubtitle}>
                 Создавайте и редактируйте расписание
               </Text>
+              <Text style={styles.sectionHint}>Удержите матч для удаления</Text>
             </View>
             <Pressable
               style={styles.createBtn}
@@ -497,13 +561,20 @@ export default function AdminScreen() {
                     onPress={() => openEditForm(match)}
                     style={styles.actionBtn}
                   >
-                    <Text style={styles.actionBtnText}>Редактировать</Text>
+                    <Text style={styles.actionBtnText}>Изменить</Text>
                   </Pressable>
                   <Pressable
                     onPress={() => router.push(`/(app)/match/${match.matchId}`)}
                     style={styles.actionBtn}
                   >
                     <Text style={styles.actionBtnText}>Открыть</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => handleDeleteMatch(match.matchId)}
+                    style={styles.trashBtn}
+                    hitSlop={8}
+                  >
+                    <TrashIcon size={20} />
                   </Pressable>
                 </View>
               </View>
@@ -524,6 +595,7 @@ export default function AdminScreen() {
               <Text style={styles.sectionSubtitle}>
                 Управляйте заявками игроков и назначайте их в команды
               </Text>
+              <Text style={styles.sectionHint}>Удержите игрока для удаления</Text>
             </View>
           </View>
 
@@ -644,15 +716,24 @@ export default function AdminScreen() {
                       {playerNames[participant.playerId] ??
                         `Игрок #${participant.playerId}`}
                     </Text>
-                    <View
-                      style={[
-                        styles.participantBadge,
-                        getBadgeStyle(badgeTone),
-                      ]}
-                    >
-                      <Text style={styles.participantBadgeText}>
-                        {participant.status}
-                      </Text>
+                    <View style={styles.participantRowRight}>
+                      <View
+                        style={[
+                          styles.participantBadge,
+                          getBadgeStyle(badgeTone),
+                        ]}
+                      >
+                        <Text style={styles.participantBadgeText}>
+                          {participant.status}
+                        </Text>
+                      </View>
+                      <Pressable
+                        onPress={() => handleDeleteParticipation(participant.participationId)}
+                        style={styles.trashBtn}
+                        hitSlop={8}
+                      >
+                        <TrashIcon size={18} />
+                      </Pressable>
                     </View>
                   </View>
                   <View style={styles.participantTeam}>
@@ -745,6 +826,19 @@ export default function AdminScreen() {
                       >
                         <Text style={styles.participantActionText}>
                           В основной состав
+                        </Text>
+                      </Pressable>
+                    )}
+                    {participant.status ===
+                      ParticipationStatus.Confirmed && (
+                      <Pressable
+                        onPress={() =>
+                          handleParticipationAction(participant, 'sendToReserve')
+                        }
+                        style={styles.participantActionBtn}
+                      >
+                        <Text style={styles.participantActionText}>
+                          В резерв
                         </Text>
                       </Pressable>
                     )}
@@ -1083,6 +1177,11 @@ const styles = StyleSheet.create({
     color: VBALL_COLORS.textMuted,
     marginTop: 4,
   },
+  sectionHint: {
+    fontSize: 11,
+    color: VBALL_COLORS.danger,
+    marginTop: 2,
+  },
   createBtn: {
     backgroundColor: VBALL_COLORS.primary,
     paddingHorizontal: 16,
@@ -1130,13 +1229,20 @@ const styles = StyleSheet.create({
   },
   matchActions: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 12,
   },
   actionBtn: {},
+  trashBtn: {
+    padding: 4,
+  },
   actionBtnText: {
     fontSize: 14,
     fontWeight: '600',
     color: VBALL_COLORS.primary,
+  },
+  actionBtnDanger: {
+    color: VBALL_COLORS.danger,
   },
   emptyText: {
     textAlign: 'center',
@@ -1237,6 +1343,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
+  participantRowRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   participantName: {
     fontSize: 15,
     fontWeight: '600',
@@ -1328,6 +1439,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: VBALL_COLORS.primary,
+  },
+  participantActionDanger: {
+    color: VBALL_COLORS.danger,
   },
   formModalOverlay: {
     flex: 1,

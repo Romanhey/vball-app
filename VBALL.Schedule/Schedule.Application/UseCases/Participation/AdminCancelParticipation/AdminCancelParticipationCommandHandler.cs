@@ -2,11 +2,14 @@ using MediatR;
 using Schedule.Application.Exceptions;
 using Schedule.Domain.Entities;
 using Schedule.Domain.IRepositories;
+using Schedule.Domain.Services;
 
 namespace Schedule.Application.UseCases.Participation.AdminCancelParticipation
 {
-    public class AdminCancelParticipationCommandHandler(IUnitOfWork unitOfWork)
-        : IRequestHandler<AdminCancelParticipationCommand>
+    public class AdminCancelParticipationCommandHandler(
+        IUnitOfWork unitOfWork,
+        INotificationService notificationService
+    ) : IRequestHandler<AdminCancelParticipationCommand>
     {
         public async Task Handle(AdminCancelParticipationCommand request, CancellationToken cancellationToken)
         {
@@ -30,6 +33,17 @@ namespace Schedule.Application.UseCases.Participation.AdminCancelParticipation
 
             await unitOfWork.ParticipationRepository.UpdateAsync(participation, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
+
+            var reasonPart = string.IsNullOrWhiteSpace(request.Dto.Reason)
+                ? string.Empty
+                : $" Причина: {request.Dto.Reason}";
+
+            await notificationService.SendAsync(
+                userId: participation.PlayerId.ToString(),
+                date: DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"),
+                level: "WARNING",
+                content: $"Ваше участие в матче #{participation.MatchId} отменено администратором.{reasonPart}",
+                cancellationToken: cancellationToken);
         }
     }
 }

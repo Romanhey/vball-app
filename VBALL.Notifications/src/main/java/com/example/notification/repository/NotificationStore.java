@@ -50,5 +50,18 @@ public class NotificationStore {
                 .filter(n -> n.getCreatedAt() != null && !n.getCreatedAt().isBefore(threshold))
                 .toList();
     }
+
+    public List<Notification> findByUserIdSince(String userId, LocalDateTime threshold) {
+        return notifications.stream()
+                .filter(n -> userId.equals(n.getUserId()))
+                .filter(n -> n.getCreatedAt() != null && !n.getCreatedAt().isBefore(threshold))
+                .toList();
+    }
+
+    public List<Notification> findByUserId(String userId) {
+        return notifications.stream()
+                .filter(n -> userId.equals(n.getUserId()))
+                .toList();
+    }
 }
 

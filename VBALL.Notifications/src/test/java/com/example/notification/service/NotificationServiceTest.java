@@ -84,7 +84,7 @@ class NotificationServiceTest {
 
     @Test
     void createNotificationFromGrpc_uses_defaults() {
-        var response = notificationService.createNotificationFromGrpc(null, "payload", null);
+        var response = notificationService.createNotificationFromGrpc("user-1", null, "payload", null);
 
         assertThat(response.getType()).isEqualTo("INFO");
         assertThat(response.getMessage()).isEqualTo("payload");

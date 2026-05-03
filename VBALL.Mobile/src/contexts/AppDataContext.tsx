@@ -79,7 +79,7 @@ export function AppDataProvider({
         await Promise.allSettled([
           matchService.getMatches({ skip: 0, take: 100 }),
           teamService.getTeams({ skip: 0, take: 100 }),
-          notificationService.getRecentNotifications(),
+          notificationService.getRecentNotifications(authStore.user!.id),
           userService.getCurrentUser(),
         ]);
 

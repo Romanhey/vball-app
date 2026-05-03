@@ -3,11 +3,13 @@ using Schedule.Application.Exceptions;
 using Schedule.Domain.Constants;
 using Schedule.Domain.Entities;
 using Schedule.Domain.IRepositories;
+using Schedule.Domain.Services;
 
 namespace Schedule.Application.UseCases.Participation.ApproveParticipation;
 
 public class ApproveParticipationCommandHandler(
-    IUnitOfWork unitOfWork
+    IUnitOfWork unitOfWork,
+    INotificationService notificationService
     ) : IRequestHandler<ApproveParticipationCommand>
 {
     public async Task Handle(ApproveParticipationCommand request, CancellationToken cancellationToken)
@@ -32,5 +34,12 @@ public class ApproveParticipationCommandHandler(
 
         await unitOfWork.ParticipationRepository.UpdateAsync(participation, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await notificationService.SendAsync(
+            userId: participation.PlayerId.ToString(),
+            date: DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"),
+            level: "INFO",
+            content: $"Ваша заявка на матч #{participation.MatchId} одобрена. Вы зарегистрированы.",
+            cancellationToken: cancellationToken);
     }
 }

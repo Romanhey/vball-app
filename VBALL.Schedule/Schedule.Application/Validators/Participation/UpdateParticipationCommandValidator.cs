@@ -76,7 +76,9 @@ public class UpdateParticipationCommandValidator : AbstractValidator<UpdateParti
                 or ParticipationStatus.Cancelled,
 
             ParticipationStatus.Confirmed => newStatus is ParticipationStatus.PendingCancellation
-                or ParticipationStatus.Cancelled,
+                or ParticipationStatus.Cancelled
+                or ParticipationStatus.Registered
+                or ParticipationStatus.Waitlisted,
 
             ParticipationStatus.PendingCancellation => newStatus is ParticipationStatus.Cancelled
                 or ParticipationStatus.Confirmed

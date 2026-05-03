@@ -1,4 +1,4 @@
 namespace Schedule.Application.DTO.Participation
 {
-    public record RequestCancellationDTO(string Reason);
+    public record RequestCancellationDTO(string? Reason = null);
 }

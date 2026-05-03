@@ -12,9 +12,10 @@ export const notificationService = {
     return response.data;
   },
 
-  async getRecentNotifications(): Promise<NotificationResponse[]> {
+  async getRecentNotifications(userId: string): Promise<NotificationResponse[]> {
     const response = await notificationsApiClient.get<NotificationResponse[]>(
-      '/api/notifications/recent'
+      '/api/notifications/recent',
+      { params: { userId } }
     );
     return response.data;
   },

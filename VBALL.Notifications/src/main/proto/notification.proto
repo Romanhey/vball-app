@@ -8,9 +8,10 @@ package notification;
 
 // Запрос на отправку уведомления
 message NotificationRequest {
-    string date = 1;           // Дата уведомления
-    string level = 2;          // Уровень уведомления (INFO, WARNING, ERROR, etc.)
-    string content = 3;        // Содержание уведомления
+    string user_id = 1;        // ID пользователя-получателя
+    string date = 2;           // Дата уведомления
+    string level = 3;          // Уровень уведомления (INFO, WARNING, ERROR, etc.)
+    string content = 4;        // Содержание уведомления
 }
 
 // Ответ на отправку уведомления

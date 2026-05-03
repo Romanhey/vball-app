@@ -15,23 +15,31 @@ namespace Schedule.Application.UseCases.Participation.RequestCancellation
             // Note: Participation existence and match finished validation is handled by FinishedMatchValidationBehavior
             var participation = (await unitOfWork.ParticipationRepository.GetByIdAsync(request.ParticipationId, cancellationToken))!;
 
-            // Business rule: player can request cancellation from Applied, Reviewed, Waitlisted, Registered statuses
-            // Confirmed participation can only be cancelled by admin
+            // Business rule: player can request cancellation from any active participation status
             var allowedStatuses = new[] {
                 ParticipationStatus.Applied,
                 ParticipationStatus.Reviewed,
                 ParticipationStatus.Waitlisted,
-                ParticipationStatus.Registered
+                ParticipationStatus.Registered,
+                ParticipationStatus.Confirmed
             };
 
             if (!allowedStatuses.Contains(participation.Status))
             {
-                throw new BadRequestException("Can only request cancellation for Applied, Reviewed, Waitlisted or Registered participation. Confirmed participation can only be cancelled by admin.");
+                throw new BadRequestException("Can only request cancellation for an active participation.");
             }
 
-            if (participation.Status == ParticipationStatus.PendingCancellation)
+            // Applied requests are cancelled immediately without admin approval
+            if (participation.Status == ParticipationStatus.Applied)
             {
-                throw new BadRequestException("Cancellation request already exists");
+                participation.Status = ParticipationStatus.Cancelled;
+                participation.CancellationType = CancellationType.PlayerRequest;
+                participation.CancellationReason = request.Dto.Reason;
+                participation.UpdatedAt = DateTime.UtcNow;
+
+                await unitOfWork.ParticipationRepository.UpdateAsync(participation, cancellationToken);
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+                return;
             }
 
             participation.Status = ParticipationStatus.PendingCancellation;

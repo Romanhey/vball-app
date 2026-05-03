@@ -2,20 +2,22 @@ using MediatR;
 using Schedule.Application.Exceptions;
 using Schedule.Domain.Entities;
 using Schedule.Domain.IRepositories;
+using Schedule.Domain.Services;
 
 namespace Schedule.Application.UseCases.Participation.ConfirmParticipation;
 
 public class ConfirmParticipationCommandHandler(
-    IUnitOfWork unitOfWork
+    IUnitOfWork unitOfWork,
+    INotificationService notificationService
     ) : IRequestHandler<ConfirmParticipationCommand>
 {
     public async Task Handle(ConfirmParticipationCommand request, CancellationToken cancellationToken)
     {
         var participation = (await unitOfWork.ParticipationRepository.GetByIdAsync(request.ParticipationId, cancellationToken))!;
 
-        if (participation.Status != ParticipationStatus.Registered)
+        if (participation.Status != ParticipationStatus.Registered && participation.Status != ParticipationStatus.Confirmed)
         {
-            throw new BadRequestException("Only participation with Registered status can be confirmed");
+            throw new BadRequestException("Only participation with Registered or Confirmed status can be confirmed");
         }
         
         var match = await unitOfWork.MatchRepository.GetByIdAsync(participation.MatchId, cancellationToken);
@@ -45,5 +47,12 @@ public class ConfirmParticipationCommandHandler(
 
         await unitOfWork.ParticipationRepository.UpdateAsync(participation, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await notificationService.SendAsync(
+            userId: participation.PlayerId.ToString(),
+            date: DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"),
+            level: "INFO",
+            content: $"Ваше участие в матче #{participation.MatchId} подтверждено.",
+            cancellationToken: cancellationToken);
     }
 }

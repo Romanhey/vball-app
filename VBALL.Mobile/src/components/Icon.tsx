@@ -40,3 +40,7 @@ export const ChevronLeftIcon = ({ size = 24 }: { size?: number }) => (
 export const LogOutIcon = ({ size = 18 }: { size?: number }) => (
   <Ionicons name="log-out" size={size} color={VBALL_COLORS.danger} />
 );
+
+export const TrashIcon = ({ size = 18 }: { size?: number }) => (
+  <Ionicons name="trash-outline" size={size} color={VBALL_COLORS.danger} />
+);
